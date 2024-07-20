@@ -1,8 +1,8 @@
 use axum::{async_trait, extract::Host, http::Method};
 use axum_extra::extract::CookieJar;
 use openapi::{
-    apis::game::{Game, GetGameResponse, GetGamesResponse, PostGamesResponse},
-    models,
+    apis::game::{Game, GetGameResponse, GetGamesResponse, PostGamesResponse, PutGameResponse},
+    models::{self, PutGamePathParams},
 };
 
 use super::api_impl::ApiImpl;
@@ -35,6 +35,17 @@ impl Game for ApiImpl {
         cookies: CookieJar,
         body: Option<models::PostGamesRequest>,
     ) -> Result<PostGamesResponse, String> {
+        todo!()
+    }
+
+    async fn put_game(
+        &self,
+        method: Method,
+        host: Host,
+        cookies: CookieJar,
+        path_params: PutGamePathParams,
+        body: Option<models::Game>,
+    ) -> Result<PutGameResponse, String> {
         todo!()
     }
 }
