@@ -1,8 +1,8 @@
 -- Add up migration script here
 create table scores (
-    id int primary key,
-    player_id int not null,
-    game_id int not null,
+    id serial primary key,
+    player_id serial not null,
+    game_id serial not null,
     score float not null,
     code text not null,
     foreign key (player_id) references players(id),
