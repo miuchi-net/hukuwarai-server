@@ -38,6 +38,10 @@
                   buildInputs = buildInputsForBuild;
                   nativeBuildInputs = nativeBuildInputsForBuild;
                 };
+                sqlx-macros = attrs: {
+                  buildInputs = buildInputsForBuild;
+                  nativeBuildInputs = nativeBuildInputsForBuild;
+                };
               };
           };
         generatedBuild = pkgs.callPackage ./Cargo.nix {
@@ -57,11 +61,28 @@
               openapi-generator-cli
             ];
         };
-        packages.hukuwarai = generatedBuild.rootCrate.build;
+        packages.hukuwarai = generatedBuild.workspaceMembers."hukuwarai".build;
         packages.default = packages.hukuwarai;
         apps.${system}.default = {
           type = "app";
           program = "${self.packages.default}/bin/hukuwarai";
+        };
+        packages.dockerImages = {
+          hukuwarai = pkgs.dockerTools.buildImage {
+            name = "hukuwarai";
+            tag = "latest";
+            copyToRoot = pkgs.buildEnv {
+              name = "hukuwarai-env";
+              paths = [packages.hukuwarai pkgs.sqlx-cli pkgs.cacert];
+            };
+            config = {
+              EntryPoint = [
+                "sh"
+                "-c"
+                "sqlx migrate run && /bin/hukuwarai"
+              ];
+            };
+          };
         };
       }
     );
