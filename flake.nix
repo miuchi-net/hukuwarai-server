@@ -76,10 +76,8 @@
               paths = [packages.hukuwarai pkgs.sqlx-cli pkgs.cacert];
             };
             config = {
-              EntryPoint = [
-                "sh"
-                "-c"
-                "sqlx migrate run && /bin/hukuwarai"
+              Cmd = [
+                "/bin/sqlx migrate run && /bin/hukuwarai"
               ];
             };
           };
