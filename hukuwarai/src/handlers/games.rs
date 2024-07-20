@@ -1,4 +1,8 @@
-use axum::{async_trait, extract::Host, http::Method};
+use axum::{
+    async_trait,
+    extract::Host,
+    http::{method, Method},
+};
 use axum_extra::extract::CookieJar;
 use openapi::{
     apis::games::{Games, GetGameResponse, GetGamesResponse, PostGamesResponse, PutGameResponse},
@@ -36,12 +40,40 @@ impl Games for ApiImpl {
 
     async fn post_games(
         &self,
-        _method: Method,
+        method: Method,
         _host: Host,
         _cookies: CookieJar,
-        _body: Option<models::PostGamesRequest>,
+        body: Option<models::PostGamesRequest>,
     ) -> Result<PostGamesResponse, String> {
-        todo!()
+        if method != method::Method::POST {
+            tracing::error!("Invalid request method. Expected POST, got {:?}", method);
+            return Err(format!(
+                "Invalid request method. Expected POST, got {:?}",
+                method
+            ));
+        }
+
+        let body = match body {
+            Some(v) => v,
+            None => {
+                tracing::error!("body must be provided");
+                return Err("body must be provided.".to_string());
+            }
+        };
+
+        let game = sqlx::query_as::<_, crate::model::game::Game>(
+            r#"INSERT INTO games (name, answer_url) VALUES ($1, $2) RETURNING *"#,
+        )
+        .bind(body.name)
+        .bind(body.answer_url)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| {
+            tracing::info!("Failed to create record to the games table: {}", e);
+            "Failed to create record to the games table.".to_string()
+        })?;
+
+        Ok(PostGamesResponse::Status200(game.into()))
     }
 
     async fn put_game(

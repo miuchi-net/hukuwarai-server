@@ -1,6 +1,6 @@
 #[derive(sqlx::FromRow)]
 pub struct Game {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub started: bool,
     pub finished: bool,
@@ -14,7 +14,7 @@ impl From<Game> for openapi::models::Game {
             name: Some(game.name),
             started: Some(game.started),
             finished: Some(game.finished),
-            answer_url: Some(game.answer_url)
+            answer_url: Some(game.answer_url),
         }
     }
 }

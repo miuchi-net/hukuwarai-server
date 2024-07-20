@@ -1,6 +1,6 @@
 #[derive(sqlx::FromRow)]
 pub struct Player {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub game_id: i64,
 }
