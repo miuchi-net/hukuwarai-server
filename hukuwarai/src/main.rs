@@ -27,7 +27,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/users", post(handlers::users::create_user))
         .with_state(pool);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:31000")
+        .await
+        .unwrap();
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
