@@ -1,6 +1,6 @@
 # Rust API for openapi
 
-HUKUWARAI JAPAN
+HUKUWARAI JAPAN FINAL 2
 
 ## Overview
 
@@ -12,8 +12,8 @@ server, you can easily generate a server stub.
 To see how to make this your own, look here: [README]((https://openapi-generator.tech))
 
 - API version: 1.0.0
-- Build date: 2024-07-21T02:56:06.988860+09:00[Asia/Tokyo]
-- Generator version: 7.7.0
+- Build date: 2024-07-20T18:32:09.051891587Z[Etc/UTC]
+- Generator version: 7.8.0-SNAPSHOT
 
 For more information, please visit [https://github.com/miuchi-net/hukuwarai-backend](https://github.com/miuchi-net/hukuwarai-backend)
 
