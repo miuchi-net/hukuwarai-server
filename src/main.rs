@@ -1,41 +1,34 @@
+use std::env;
+
 use axum::{
-    http::StatusCode,
     routing::{get, post},
-    Json, Router,
+    Router,
 };
-use serde::{Deserialize, Serialize};
+use sqlx::postgres::PgPoolOptions;
+
+pub mod handlers;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
+    dotenvy::dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("env `DATABASE_URL` must be set");
+    let pool = PgPoolOptions::new()
+        .max_connections(8)
+        .connect(&database_url)
+        .await
+        .expect("Couldn't connect to the DB");
+
+    sqlx::migrate!().run(&pool).await?;
 
     let app = Router::new()
-        .route("/", get(root))
-        .route("/users", post(create_user));
+        .route("/", get(handlers::ping::ping))
+        .route("/users", post(handlers::users::create_user))
+        .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
-}
 
-async fn root() -> &'static str {
-    "Hello, World!"
-}
-
-async fn create_user(Json(payload): Json<CreateUser>) -> (StatusCode, Json<User>) {
-    let user = User {
-        id: 1337,
-        username: payload.username,
-    };
-    (StatusCode::CREATED, Json(user))
-}
-
-#[derive(Deserialize)]
-struct CreateUser {
-    username: String,
-}
-
-#[derive(Serialize)]
-struct User {
-    id: u64,
-    username: String,
+    Ok(())
 }
