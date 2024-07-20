@@ -5,6 +5,6 @@ create table scores (
     game_id int not null,
     score float not null,
     code text not null,
-    foreign key player_id references players(id),
-    foreign key game_id references games(id),
+    foreign key (player_id) references players(id),
+    foreign key (game_id) references games(id)
 );

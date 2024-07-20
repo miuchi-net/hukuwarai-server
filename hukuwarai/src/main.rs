@@ -1,9 +1,7 @@
 use std::env;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use handlers::api_impl::ApiImpl;
+use openapi::server::new;
 use sqlx::postgres::PgPoolOptions;
 
 pub mod handlers;
@@ -23,15 +21,11 @@ async fn main() -> anyhow::Result<()> {
 
     sqlx::migrate!().run(&pool).await?;
 
-    let app = Router::new()
-        .route("/", get(handlers::ping::ping))
-        .route("/users", post(handlers::users::create_user))
-        .with_state(pool);
-
+    let router = new(ApiImpl {});
     let listener = tokio::net::TcpListener::bind("0.0.0.0:31000")
         .await
         .unwrap();
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, router).await.unwrap();
 
     Ok(())
 }
