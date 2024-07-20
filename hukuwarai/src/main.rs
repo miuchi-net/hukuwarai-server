@@ -7,6 +7,7 @@ use axum::{
 use sqlx::postgres::PgPoolOptions;
 
 pub mod handlers;
+pub mod model;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
