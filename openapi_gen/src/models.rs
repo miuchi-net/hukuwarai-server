@@ -12,7 +12,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct GetGamePathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -23,7 +23,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct PutGamePathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -32,7 +32,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct GetPlayersPathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -41,7 +41,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct PostPlayersPathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -50,7 +50,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct PostScoresPathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -59,7 +59,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct GetVotePathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -68,7 +68,7 @@ use crate::{models, types::*};
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct PostVotePathParams {
             /// 対象のゲームのID
-                pub game_id: i64,
+                pub game_id: i32,
     }
 
 
@@ -83,7 +83,7 @@ pub struct Game {
 /// ゲームの一意な識別子
     #[serde(rename = "id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<i32>,
 
 /// ゲームの名前
     #[serde(rename = "name")]
@@ -184,7 +184,7 @@ impl std::str::FromStr for Game {
         #[derive(Default)]
         #[allow(dead_code)]
         struct IntermediateRep {
-            pub id: Vec<i64>,
+            pub id: Vec<i32>,
             pub name: Vec<String>,
             pub started: Vec<bool>,
             pub finished: Vec<bool>,
@@ -207,7 +207,7 @@ impl std::str::FromStr for Game {
                 #[allow(clippy::match_single_binding)]
                 match key {
                     #[allow(clippy::redundant_clone)]
-                    "id" => intermediate_rep.id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "id" => intermediate_rep.id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
                     "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
@@ -407,7 +407,7 @@ pub struct Player {
 /// プレイヤーの一意な識別子
     #[serde(rename = "id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<i32>,
 
 /// プレイヤーの名前
     #[serde(rename = "name")]
@@ -417,7 +417,7 @@ pub struct Player {
 /// プレイヤーが参加しているゲームのID
     #[serde(rename = "game_id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub game_id: Option<i64>,
+    pub game_id: Option<i32>,
 
 }
 
@@ -480,9 +480,9 @@ impl std::str::FromStr for Player {
         #[derive(Default)]
         #[allow(dead_code)]
         struct IntermediateRep {
-            pub id: Vec<i64>,
+            pub id: Vec<i32>,
             pub name: Vec<String>,
-            pub game_id: Vec<i64>,
+            pub game_id: Vec<i32>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -501,11 +501,11 @@ impl std::str::FromStr for Player {
                 #[allow(clippy::match_single_binding)]
                 match key {
                     #[allow(clippy::redundant_clone)]
-                    "id" => intermediate_rep.id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "id" => intermediate_rep.id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
                     "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
-                    "game_id" => intermediate_rep.game_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "game_id" => intermediate_rep.game_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Player".to_string())
                 }
             }
@@ -574,6 +574,11 @@ pub struct PostGamesRequest {
     #[serde(rename = "name")]
     pub name: String,
 
+/// 正解画像 URL
+    #[serde(rename = "answer_url")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub answer_url: Option<String>,
+
 }
 
 
@@ -582,6 +587,7 @@ impl PostGamesRequest {
     pub fn new(name: String, ) -> PostGamesRequest {
         PostGamesRequest {
             name,
+            answer_url: None,
         }
     }
 }
@@ -595,6 +601,14 @@ impl std::fmt::Display for PostGamesRequest {
 
             Some("name".to_string()),
             Some(self.name.to_string()),
+
+
+            self.answer_url.as_ref().map(|answer_url| {
+                [
+                    "answer_url".to_string(),
+                    answer_url.to_string(),
+                ].join(",")
+            }),
 
         ];
 
@@ -614,6 +628,7 @@ impl std::str::FromStr for PostGamesRequest {
         #[allow(dead_code)]
         struct IntermediateRep {
             pub name: Vec<String>,
+            pub answer_url: Vec<String>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -633,6 +648,8 @@ impl std::str::FromStr for PostGamesRequest {
                 match key {
                     #[allow(clippy::redundant_clone)]
                     "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "answer_url" => intermediate_rep.answer_url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing PostGamesRequest".to_string())
                 }
             }
@@ -644,6 +661,7 @@ impl std::str::FromStr for PostGamesRequest {
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(PostGamesRequest {
             name: intermediate_rep.name.into_iter().next().ok_or_else(|| "name missing in PostGamesRequest".to_string())?,
+            answer_url: intermediate_rep.answer_url.into_iter().next(),
         })
     }
 }
@@ -826,14 +844,14 @@ pub struct PostScoresRequest {
 
 /// プレイ中のプレイヤーのID
     #[serde(rename = "player_id")]
-    pub player_id: i64,
+    pub player_id: i32,
 
 }
 
 
 impl PostScoresRequest {
     #[allow(clippy::new_without_default, clippy::too_many_arguments)]
-    pub fn new(code: String, player_id: i64, ) -> PostScoresRequest {
+    pub fn new(code: String, player_id: i32, ) -> PostScoresRequest {
         PostScoresRequest {
             code,
             player_id,
@@ -873,7 +891,7 @@ impl std::str::FromStr for PostScoresRequest {
         #[allow(dead_code)]
         struct IntermediateRep {
             pub code: Vec<String>,
-            pub player_id: Vec<i64>,
+            pub player_id: Vec<i32>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -894,7 +912,7 @@ impl std::str::FromStr for PostScoresRequest {
                     #[allow(clippy::redundant_clone)]
                     "code" => intermediate_rep.code.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
-                    "player_id" => intermediate_rep.player_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "player_id" => intermediate_rep.player_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing PostScoresRequest".to_string())
                 }
             }
@@ -1089,14 +1107,14 @@ impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<PostVote200R
 pub struct PostVoteRequest {
 /// 投票するプレイヤーのID
     #[serde(rename = "player_id")]
-    pub player_id: i64,
+    pub player_id: i32,
 
 }
 
 
 impl PostVoteRequest {
     #[allow(clippy::new_without_default, clippy::too_many_arguments)]
-    pub fn new(player_id: i64, ) -> PostVoteRequest {
+    pub fn new(player_id: i32, ) -> PostVoteRequest {
         PostVoteRequest {
             player_id,
         }
@@ -1130,7 +1148,7 @@ impl std::str::FromStr for PostVoteRequest {
         #[derive(Default)]
         #[allow(dead_code)]
         struct IntermediateRep {
-            pub player_id: Vec<i64>,
+            pub player_id: Vec<i32>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -1149,7 +1167,7 @@ impl std::str::FromStr for PostVoteRequest {
                 #[allow(clippy::match_single_binding)]
                 match key {
                     #[allow(clippy::redundant_clone)]
-                    "player_id" => intermediate_rep.player_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "player_id" => intermediate_rep.player_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing PostVoteRequest".to_string())
                 }
             }
@@ -1215,17 +1233,17 @@ pub struct Score {
 /// スコアの一意な識別子
     #[serde(rename = "id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<i32>,
 
 /// スコアを持つプレイヤーのID
     #[serde(rename = "player_id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub player_id: Option<i64>,
+    pub player_id: Option<i32>,
 
 /// スコアを持つゲームのID
     #[serde(rename = "game_id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub game_id: Option<i64>,
+    pub game_id: Option<i32>,
 
 /// スコア
     #[serde(rename = "score")]
@@ -1316,9 +1334,9 @@ impl std::str::FromStr for Score {
         #[derive(Default)]
         #[allow(dead_code)]
         struct IntermediateRep {
-            pub id: Vec<i64>,
-            pub player_id: Vec<i64>,
-            pub game_id: Vec<i64>,
+            pub id: Vec<i32>,
+            pub player_id: Vec<i32>,
+            pub game_id: Vec<i32>,
             pub score: Vec<f64>,
             pub code: Vec<String>,
         }
@@ -1339,11 +1357,11 @@ impl std::str::FromStr for Score {
                 #[allow(clippy::match_single_binding)]
                 match key {
                     #[allow(clippy::redundant_clone)]
-                    "id" => intermediate_rep.id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "id" => intermediate_rep.id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
-                    "player_id" => intermediate_rep.player_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "player_id" => intermediate_rep.player_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
-                    "game_id" => intermediate_rep.game_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "game_id" => intermediate_rep.game_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
                     "score" => intermediate_rep.score.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
@@ -1417,17 +1435,17 @@ pub struct Vote {
 /// 投票の一意な識別子
     #[serde(rename = "id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub id: Option<i64>,
+    pub id: Option<i32>,
 
 /// 投票を行ったゲームのID
     #[serde(rename = "game_id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub game_id: Option<i64>,
+    pub game_id: Option<i32>,
 
 /// 投票先のプレイヤーのID
     #[serde(rename = "player_id")]
     #[serde(skip_serializing_if="Option::is_none")]
-    pub player_id: Option<i64>,
+    pub player_id: Option<i32>,
 
 }
 
@@ -1490,9 +1508,9 @@ impl std::str::FromStr for Vote {
         #[derive(Default)]
         #[allow(dead_code)]
         struct IntermediateRep {
-            pub id: Vec<i64>,
-            pub game_id: Vec<i64>,
-            pub player_id: Vec<i64>,
+            pub id: Vec<i32>,
+            pub game_id: Vec<i32>,
+            pub player_id: Vec<i32>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -1511,11 +1529,11 @@ impl std::str::FromStr for Vote {
                 #[allow(clippy::match_single_binding)]
                 match key {
                     #[allow(clippy::redundant_clone)]
-                    "id" => intermediate_rep.id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "id" => intermediate_rep.id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
-                    "game_id" => intermediate_rep.game_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "game_id" => intermediate_rep.game_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
-                    "player_id" => intermediate_rep.player_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    "player_id" => intermediate_rep.player_id.push(<i32 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Vote".to_string())
                 }
             }

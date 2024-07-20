@@ -1,9 +1,22 @@
 #[derive(sqlx::FromRow)]
 pub struct Game {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub started: bool,
     pub finished: bool,
+    pub answer_url: String,
+}
+
+impl From<Game> for openapi::models::Game {
+    fn from(game: Game) -> Self {
+        openapi::models::Game {
+            id: Some(game.id),
+            name: Some(game.name),
+            started: Some(game.started),
+            finished: Some(game.finished),
+            answer_url: Some(game.answer_url),
+        }
+    }
 }
 
 pub async fn get_all_games(pool: &sqlx::PgPool) -> Result<Vec<Game>, sqlx::Error> {
