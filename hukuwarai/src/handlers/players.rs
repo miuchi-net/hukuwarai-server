@@ -5,7 +5,7 @@ use openapi::{
     models::{self, GetPlayers200Response},
 };
 
-use crate::model::{self};
+use crate::model::{self, player::Player};
 
 use super::api_impl::ApiImpl;
 
@@ -37,9 +37,25 @@ impl Players for ApiImpl {
         _method: Method,
         _host: Host,
         _cookies: CookieJar,
-        _path_params: models::PostPlayersPathParams,
-        _body: Option<models::PostPlayersRequest>,
+        path_params: models::PostPlayersPathParams,
+        body: Option<models::PostPlayersRequest>,
     ) -> Result<PostPlayersResponse, String> {
-        todo!()
+        let body = match body {
+            Some(v) => v,
+            None => return Err(String::from("body must be provided")),
+        };
+        let player = sqlx::query_as::<_, Player>(
+            "INSERT INTO players (name, game_id) VALUES ($1, $2) RETURNING *",
+        )
+        .bind(body.name)
+        .bind(path_params.game_id)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to create record to players table: {e}");
+            "Failed to create record to players table".to_string()
+        })?;
+
+        Ok(PostPlayersResponse::Status200(player.into()))
     }
 }
