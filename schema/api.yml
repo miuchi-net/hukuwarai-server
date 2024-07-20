@@ -28,8 +28,8 @@ paths:
       summary: ゲーム全取得API
       description: 作成されているゲームを全て取得する
       responses:
-        '200':
-          $ref: '#/components/responses/getGamesResponse'
+        "200":
+          $ref: "#/components/responses/getGamesResponse"
     post:
       operationId: postGames
       tags:
@@ -37,11 +37,11 @@ paths:
       summary: ゲーム作成API
       description: 新しいゲームを作成する
       requestBody:
-        $ref: '#/components/requestBodies/postGamesRequest'
+        $ref: "#/components/requestBodies/postGamesRequest"
       responses:
-        '200':
-          $ref: '#/components/responses/postGamesResponse'
-  '/games/{gameId}':
+        "200":
+          $ref: "#/components/responses/postGamesResponse"
+  "/games/{gameId}":
     get:
       operationId: getGame
       tags:
@@ -57,11 +57,11 @@ paths:
             format: int32
           description: 対象のゲームのID
       responses:
-        '200':
-          $ref: '#/components/responses/getGameResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/getGameResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
     put:
       operationId: putGame
@@ -78,15 +78,15 @@ paths:
             format: int32
           description: 対象のゲームのID
       requestBody:
-        $ref: '#/components/requestBodies/putGameRequest'
+        $ref: "#/components/requestBodies/putGameRequest"
       responses:
-        '200':
-          $ref: '#/components/responses/putGameResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/putGameResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
-  '/votes/{gameId}':
+  "/votes/{gameId}":
     get:
       operationId: getVote
       tags:
@@ -102,11 +102,11 @@ paths:
             format: int32
           description: 対象のゲームのID
       responses:
-        '200':
-          $ref: '#/components/responses/getVoteResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/getVoteResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
     post:
       operationId: postVote
@@ -123,15 +123,15 @@ paths:
             format: int32
           description: 対象のゲームのID
       requestBody:
-        $ref: '#/components/requestBodies/postVoteRequest'
+        $ref: "#/components/requestBodies/postVoteRequest"
       responses:
-        '200':
-          $ref: '#/components/responses/postVoteResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/postVoteResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
-  '/scores/${gameId}':
+  "/scores/${gameId}":
     post:
       operationId: postScores
       tags:
@@ -147,15 +147,15 @@ paths:
             format: int32
           description: 対象のゲームのID
       requestBody:
-        $ref: '#/components/requestBodies/postScoreRequest'
+        $ref: "#/components/requestBodies/postScoreRequest"
       responses:
-        '200':
-          $ref: '#/components/responses/postScoreResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/postScoreResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
-  '/players/{gameId}':
+  "/players/{gameId}":
     get:
       operationId: getPlayers
       tags:
@@ -171,11 +171,11 @@ paths:
             format: int32
           description: 対象のゲームのID
       responses:
-        '200':
-          $ref: '#/components/responses/getPlayersResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/getPlayersResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
     post:
       operationId: postPlayers
@@ -192,13 +192,13 @@ paths:
             format: int32
           description: 対象のゲームのID
       requestBody:
-        $ref: '#/components/requestBodies/postPlayersRequest'
+        $ref: "#/components/requestBodies/postPlayersRequest"
       responses:
-        '200':
-          $ref: '#/components/responses/postPlayersResponse'
-        '400':
+        "200":
+          $ref: "#/components/responses/postPlayersResponse"
+        "400":
           description: Bad Request
-        '404':
+        "404":
           description: Not Found
 components:
   schemas:
@@ -293,7 +293,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Game'
+            $ref: "#/components/schemas/Game"
     postVoteRequest:
       content:
         application/json:
@@ -342,25 +342,25 @@ components:
           schema:
             type: array
             items:
-              $ref: '#/components/schemas/Game'
+              $ref: "#/components/schemas/Game"
     postGamesResponse:
       description: ゲームを作成した結果を返します
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Game'
+            $ref: "#/components/schemas/Game"
     getGameResponse:
       description: 対象のゲームのデータを返します
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Game'
+            $ref: "#/components/schemas/Game"
     putGameResponse:
       description: 対象のゲームのデータを変更したものを返します
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Game'
+            $ref: "#/components/schemas/Game"
     getVoteResponse:
       description: 投票結果を返します
       content:
@@ -368,7 +368,7 @@ components:
           schema:
             type: array
             items:
-              $ref: '#/components/schemas/Vote'
+              $ref: "#/components/schemas/Vote"
     postVoteResponse:
       description: 投票に対するレスポンスを返します
       content:
@@ -378,7 +378,7 @@ components:
             properties:
               status:
                 type: string
-                default: 'ok'
+                default: "ok"
     getPlayersResponse:
       description: ゲームに参加しているプレイヤー情報を返します
       content:
@@ -389,16 +389,16 @@ components:
               status:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Player'
+                  $ref: "#/components/schemas/Player"
     postPlayersResponse:
       description: 新規作成したプレイヤーデータを返します
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Player'
+            $ref: "#/components/schemas/Player"
     postScoreResponse:
       description: 追加したスコアを返します
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Score'
+            $ref: "#/components/schemas/Score"
