@@ -1,5 +1,12 @@
 name: Generate Documents
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/generate-documents.yml'
+      - 'schema/api.yml'
 
 permissions:
   contents: write
