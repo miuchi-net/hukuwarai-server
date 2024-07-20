@@ -9,7 +9,7 @@ use openapi::{
     models::{self, PutGamePathParams},
 };
 
-use crate::model::game::get_all_games;
+use crate::model::game::{get_all_games, get_game_by_id};
 
 use super::api_impl::ApiImpl;
 
@@ -20,9 +20,16 @@ impl Games for ApiImpl {
         _method: Method,
         _host: Host,
         _cookies: CookieJar,
-        _path_params: models::GetGamePathParams,
+        path_params: models::GetGamePathParams,
     ) -> Result<GetGameResponse, String> {
-        todo!()
+        let game = match get_game_by_id(&self.pool, path_params.game_id).await {
+            Ok(game) => match game {
+                Some(game) => openapi::models::Game::from(game),
+                None => return Ok(GetGameResponse::Status404_NotFound)
+            }
+            Err(err) => return Err(err.to_string())
+        };
+        Ok(GetGameResponse::Status200(game))
     }
 
     async fn get_games(
