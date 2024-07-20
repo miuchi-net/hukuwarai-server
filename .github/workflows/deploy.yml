@@ -20,7 +20,9 @@ jobs:
           name: miuchi-net
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build the image
-        run: docker load < $(nix build ".#dockerImages.hukuwarai")
+        run: |
+          nix build ".#dockerImages.hukuwarai"
+          docker load < result
       - name: Tag the image
         run: docker tag hukuwarai-server:latest "ghcr.io/miuchi-net/hukuwarai-server:latest"
       - name: Login to the registry
