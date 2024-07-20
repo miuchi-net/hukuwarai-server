@@ -46,3 +46,16 @@ pub async fn add_game(pool: &sqlx::PgPool, name: &str) -> Result<Game, sqlx::Err
     .await?;
     Ok(result)
 }
+
+pub async fn update_game(pool: &sqlx::PgPool, game: openapi::models::Game) -> Result<Game, sqlx::Error> {
+    let result = sqlx::query_as::<_, Game>(
+        "UPDATE games SET name = $1, started = $2, finished = $3, answer_url = $4 WHERE id = $5 RETURNING id, name, started, finished, answer_url",
+    ).bind(&game.name)
+    .bind(&game.started)
+    .bind(&game.finished)
+    .bind(&game.answer_url)
+    .bind(&game.id)
+    .fetch_one(pool)
+    .await?;
+    Ok(result)
+}
