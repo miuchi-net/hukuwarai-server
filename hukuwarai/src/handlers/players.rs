@@ -5,6 +5,8 @@ use openapi::{
     models,
 };
 
+use crate::model::player::add_player;
+
 use super::api_impl::ApiImpl;
 
 #[async_trait]
@@ -24,9 +26,17 @@ impl Players for ApiImpl {
         _method: Method,
         _host: Host,
         _cookies: CookieJar,
-        _path_params: models::PostPlayersPathParams,
-        _body: Option<models::PostPlayersRequest>,
+        path_params: models::PostPlayersPathParams,
+        body: Option<models::PostPlayersRequest>,
     ) -> Result<PostPlayersResponse, String> {
-        todo!()
+        let body = match body {
+            Some(body) => body,
+            None => return Err("body is required".to_string()),
+        };
+        let player = match add_player(&self.pool, &body.name, path_params.game_id).await {
+            Ok(player) => player,
+            Err(err) => return Err(err.to_string()),
+        };
+        Ok(PostPlayersResponse::Status200(models::Player::from(player)))
     }
 }

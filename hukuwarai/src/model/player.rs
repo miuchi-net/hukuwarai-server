@@ -2,7 +2,17 @@
 pub struct Player {
     pub id: i64,
     pub name: String,
-    pub game_id: i64,
+    pub game_id: i32,
+}
+
+impl From<Player> for openapi::models::Player {
+    fn from(player: Player) -> Self {
+        openapi::models::Player {
+            id: Some(player.id),
+            name: Some(player.name),
+            game_id: Some(player.game_id.into()),
+        }
+    }
 }
 
 pub async fn get_all_players(pool: &sqlx::PgPool) -> Result<Vec<Player>, sqlx::Error> {
@@ -26,7 +36,7 @@ pub async fn get_player_by_id(
 pub async fn add_player(
     pool: &sqlx::PgPool,
     name: &str,
-    game_id: i64,
+    game_id: i32,
 ) -> Result<Player, sqlx::Error> {
     let result = sqlx::query_as::<_, Player>(
         "INSERT INTO players (name, game_id) VALUES ($1, $2) RETURNING id, name, game_id",
