@@ -64,7 +64,7 @@ impl Games for ApiImpl {
             .await
             .map_err(|e| {
                 tracing::error!("Failed to create record to games: {e}");
-                return "Failed to create record to games".to_string();
+                "Failed to create record to games".to_string()
             })?;
 
         Ok(PostGamesResponse::Status200(game.into()))
