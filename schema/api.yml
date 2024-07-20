@@ -54,7 +54,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       responses:
         '200':
@@ -75,7 +75,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       requestBody:
         $ref: '#/components/requestBodies/putGameRequest'
@@ -99,7 +99,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       responses:
         '200':
@@ -120,7 +120,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       requestBody:
         $ref: '#/components/requestBodies/postVoteRequest'
@@ -144,7 +144,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       requestBody:
         $ref: '#/components/requestBodies/postScoreRequest'
@@ -168,7 +168,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       responses:
         '200':
@@ -189,7 +189,7 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
           description: 対象のゲームのID
       requestBody:
         $ref: '#/components/requestBodies/postPlayersRequest'
@@ -207,7 +207,7 @@ components:
       properties:
         id:
           type: integer
-          format: int64
+          format: int32
           description: ゲームの一意な識別子
         name:
           type: string
@@ -228,44 +228,44 @@ components:
       properties:
         id:
           type: integer
-          format: int64
+          format: int32
           description: プレイヤーの一意な識別子
         name:
           type: string
           description: プレイヤーの名前
         game_id:
           type: integer
-          format: int64
+          format: int32
           description: プレイヤーが参加しているゲームのID
     Vote:
       type: object
       properties:
         id:
           type: integer
-          format: int64
+          format: int32
           description: 投票の一意な識別子
         game_id:
           type: integer
-          format: int64
+          format: int32
           description: 投票を行ったゲームのID
         player_id:
           type: integer
-          format: int64
+          format: int32
           description: 投票先のプレイヤーのID
     Score:
       type: object
       properties:
         id:
           type: integer
-          format: int64
+          format: int32
           description: スコアの一意な識別子
         player_id:
           type: integer
-          format: int64
+          format: int32
           description: スコアを持つプレイヤーのID
         game_id:
           type: integer
-          format: int64
+          format: int32
           description: スコアを持つゲームのID
         score:
           type: number
@@ -284,6 +284,9 @@ components:
               name:
                 type: string
                 description: ゲーム名
+              answer_url:
+                type: string
+                description: 正解画像 URL
             required:
               - name
     putGameRequest:
@@ -299,7 +302,7 @@ components:
             properties:
               player_id:
                 type: integer
-                format: int64
+                format: int32
                 description: 投票するプレイヤーのID
             required:
               - player_id
@@ -325,7 +328,7 @@ components:
                 description: ソースコード
               player_id:
                 type: integer
-                format: int64
+                format: int32
                 description: プレイ中のプレイヤーのID
             required:
               - code
