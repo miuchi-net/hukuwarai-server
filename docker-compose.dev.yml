@@ -9,3 +9,11 @@ services:
       POSTGRES_PASSWORD: $DB_PASSWORD
       POSTGRES_USER: $DB_USER
       POSTGRES_DB: $DB_NAME
+  prism:
+    platform: linux/amd64
+    image: stoplight/prism:4
+    command: 'mock -h 0.0.0.0 /tmp/api.yml'
+    volumes:
+      - ./schema/api.yml:/tmp/api.yml:ro
+    ports:
+      - 4010:4010
