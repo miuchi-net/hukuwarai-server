@@ -11,40 +11,40 @@ use super::api_impl::ApiImpl;
 impl Games for ApiImpl {
     async fn get_game(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
-        path_params: models::GetGamePathParams,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        _path_params: models::GetGamePathParams,
     ) -> Result<GetGameResponse, String> {
         todo!()
     }
 
     async fn get_games(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
     ) -> Result<GetGamesResponse, String> {
         todo!()
     }
 
     async fn post_games(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
-        body: Option<models::PostGamesRequest>,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        _body: Option<models::PostGamesRequest>,
     ) -> Result<PostGamesResponse, String> {
         todo!()
     }
 
     async fn put_game(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
-        path_params: PutGamePathParams,
-        body: Option<models::Game>,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        _path_params: PutGamePathParams,
+        _body: Option<models::Game>,
     ) -> Result<PutGameResponse, String> {
         todo!()
     }

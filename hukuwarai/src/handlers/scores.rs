@@ -11,11 +11,11 @@ use super::api_impl::ApiImpl;
 impl Scores for ApiImpl {
     async fn post_scores(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
-        path_params: PostScoresPathParams,
-        body: Option<PostScoresRequest>,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        _path_params: PostScoresPathParams,
+        _body: Option<PostScoresRequest>,
     ) -> Result<PostScoresResponse, String> {
         todo!()
     }

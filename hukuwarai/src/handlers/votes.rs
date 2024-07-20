@@ -11,21 +11,21 @@ use super::api_impl::ApiImpl;
 impl Votes for ApiImpl {
     async fn get_vote(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
-        path_params: models::GetVotePathParams,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        _path_params: models::GetVotePathParams,
     ) -> Result<GetVoteResponse, String> {
         todo!()
     }
 
     async fn post_vote(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
-        path_params: models::PostVotePathParams,
-        body: Option<models::PostVoteRequest>,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        _path_params: models::PostVotePathParams,
+        _body: Option<models::PostVoteRequest>,
     ) -> Result<PostVoteResponse, String> {
         todo!()
     }
