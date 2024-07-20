@@ -9,7 +9,7 @@ use openapi::{
     models::{self, PutGamePathParams},
 };
 
-use crate::model::game::{get_all_games, get_game_by_id, update_game};
+use crate::model::game::{add_game, get_all_games, get_game_by_id, update_game};
 
 use super::api_impl::ApiImpl;
 
@@ -52,14 +52,6 @@ impl Games for ApiImpl {
         _cookies: CookieJar,
         body: Option<models::PostGamesRequest>,
     ) -> Result<PostGamesResponse, String> {
-        if method != method::Method::POST {
-            tracing::error!("Invalid request method. Expected POST, got {:?}", method);
-            return Err(format!(
-                "Invalid request method. Expected POST, got {:?}",
-                method
-            ));
-        }
-
         let body = match body {
             Some(v) => v,
             None => {
@@ -68,17 +60,12 @@ impl Games for ApiImpl {
             }
         };
 
-        let game = sqlx::query_as::<_, crate::model::game::Game>(
-            r#"INSERT INTO games (name, answer_url) VALUES ($1, $2) RETURNING *"#,
-        )
-        .bind(body.name)
-        .bind(body.answer_url)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| {
-            tracing::info!("Failed to create record to the games table: {}", e);
-            "Failed to create record to the games table.".to_string()
-        })?;
+        let game = add_game(&self.pool, &body.name, &body.answer_url)
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to create record to games: {e}");
+                return "Failed to create record to games".to_string();
+            })?;
 
         Ok(PostGamesResponse::Status200(game.into()))
     }

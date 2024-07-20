@@ -38,10 +38,15 @@ pub async fn get_game_by_id(
     Ok(game)
 }
 
-pub async fn add_game(pool: &sqlx::PgPool, name: &str) -> Result<Game, sqlx::Error> {
+pub async fn add_game(
+    pool: &sqlx::PgPool,
+    name: &str,
+    answer_url: &str,
+) -> Result<Game, sqlx::Error> {
     let result = sqlx::query_as::<_, Game>(
-        "INSERT INTO games (name, started, finished) VALUES ($1, false, false) RETURNING id, name, started, finished",
+        "INSERT INTO games (name, answer_url,started, finished) VALUES ($1, $2, false, false) RETURNING id, name, answer_url, started, finished",
     ).bind(name)
+    .bind(answer_url)
     .fetch_one(pool)
     .await?;
     Ok(result)
