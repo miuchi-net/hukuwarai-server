@@ -14,7 +14,7 @@ impl From<Game> for openapi::models::Game {
             name: Some(game.name),
             started: Some(game.started),
             finished: Some(game.finished),
-            answer_url: Some(game.answer_url)
+            answer_url: Some(game.answer_url),
         }
     }
 }
@@ -42,6 +42,19 @@ pub async fn add_game(pool: &sqlx::PgPool, name: &str) -> Result<Game, sqlx::Err
     let result = sqlx::query_as::<_, Game>(
         "INSERT INTO games (name, started, finished) VALUES ($1, false, false) RETURNING id, name, started, finished",
     ).bind(name)
+    .fetch_one(pool)
+    .await?;
+    Ok(result)
+}
+
+pub async fn update_game(pool: &sqlx::PgPool, game: openapi::models::Game) -> Result<Game, sqlx::Error> {
+    let result = sqlx::query_as::<_, Game>(
+        "UPDATE games SET name = $1, started = $2, finished = $3, answer_url = $4 WHERE id = $5 RETURNING id, name, started, finished, answer_url",
+    ).bind(&game.name)
+    .bind(&game.started)
+    .bind(&game.finished)
+    .bind(&game.answer_url)
+    .bind(&game.id)
     .fetch_one(pool)
     .await?;
     Ok(result)

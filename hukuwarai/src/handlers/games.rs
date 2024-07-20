@@ -5,7 +5,7 @@ use openapi::{
     models::{self, PutGamePathParams},
 };
 
-use crate::model::game::{get_all_games, get_game_by_id};
+use crate::model::game::{get_all_games, get_game_by_id, update_game};
 
 use super::api_impl::ApiImpl;
 
@@ -21,9 +21,9 @@ impl Games for ApiImpl {
         let game = match get_game_by_id(&self.pool, path_params.game_id).await {
             Ok(game) => match game {
                 Some(game) => openapi::models::Game::from(game),
-                None => return Ok(GetGameResponse::Status404_NotFound)
-            }
-            Err(err) => return Err(err.to_string())
+                None => return Ok(GetGameResponse::Status404_NotFound),
+            },
+            Err(err) => return Err(err.to_string()),
         };
         Ok(GetGameResponse::Status200(game))
     }
@@ -57,8 +57,16 @@ impl Games for ApiImpl {
         _host: Host,
         _cookies: CookieJar,
         _path_params: PutGamePathParams,
-        _body: Option<models::Game>,
+        body: Option<models::Game>,
     ) -> Result<PutGameResponse, String> {
-        todo!()
+        let game = match body {
+            Some(game) => game,
+            None => return Err("No game provided".to_string()),
+        };
+        let game = match update_game(&self.pool, game).await {
+            Ok(game) => openapi::models::Game::from(game),
+            Err(err) => return Err(err.to_string()),
+        };
+        Ok(PutGameResponse::Status200(game))
     }
 }
