@@ -1,0 +1,304 @@
+openapi: 3.0.3
+info:
+  title: hukuwarai-backend
+  version: 1.0.0
+  contact:
+    name: miuchi.net
+    url: https://github.com/miuchi-net/hukuwarai-backend
+  description: HUKUWARAI JAPAN
+  license:
+    name: MIT
+    url: https://github.com/miuchi-net/hukuwarai-server/blob/main/LICENSE
+servers:
+  - url: "https://hukuwarai.miuchi.net"
+    description: prod
+  - url: "http://localhost:31000"
+    description: dev
+tags:
+  - name: game
+  - name: players
+  - name: votes
+paths:
+  /game:
+    get:
+      operationId: getGames
+      tags:
+        - game
+      summary: ゲーム全取得API
+      description: 作成されているゲームを全て取得する
+      responses:
+        '200':
+          $ref: '#/components/responses/getGamesResponse'
+    post:
+      operationId: postGames
+      tags:
+        - game
+      summary: ゲーム作成API
+      description: 新しいゲームを作成する
+      requestBody:
+        $ref: '#/components/requestBodies/postGamesRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/postGamesResponse'
+  '/game/{gameId}':
+    get:
+      operationId: getGame
+      tags:
+        - game
+      summary: ゲーム取得API
+      description: 対象のゲームを取得する
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 対象のゲームのID
+      responses:
+        '200':
+          $ref: '#/components/responses/getGameResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+  '/votes/{gameId}':
+    get:
+      operationId: getVote
+      tags:
+        - votes
+      summary: 投票結果取得API
+      description: 投票結果を取得する
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 対象のゲームのID
+      responses:
+        '200':
+          $ref: '#/components/responses/getVoteResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+    post:
+      operationId: postVote
+      tags:
+        - votes
+      summary: 投票API
+      description: レンダリング結果に対して投票する
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 対象のゲームのID
+      requestBody:
+        $ref: '#/components/requestBodies/postVoteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/postVoteResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+  '/players/{gameId}':
+    get:
+      operationId: getPlayers
+      tags:
+        - players
+      summary: プレイヤー取得API
+      description: ゲームに参加しているプレイヤー情報を取得します
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 対象のゲームのID
+      responses:
+        '200':
+          $ref: '#/components/responses/getPlayersResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+    post:
+      operationId: postPlayers
+      tags:
+        - players
+      summary: プレイヤー作成API
+      description: プレイヤーを作成します
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 対象のゲームのID
+      requestBody:
+        $ref: '#/components/requestBodies/postPlayersRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/postPlayersResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ゲームの一意な識別子
+        name:
+          type: string
+          description: ゲームの名前
+        started:
+          type: boolean
+          description: ゲームが開始しているかどうかを示す
+          default: false
+        finished:
+          type: boolean
+          description: ゲームが終了しているかどうかを示す
+          default: false
+        answer_url:
+          type: string
+          description: ゲームの正解画像のURL
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: プレイヤーの一意な識別子
+        name:
+          type: string
+          description: プレイヤーの名前
+        game_id:
+          type: integer
+          format: int64
+          description: プレイヤーが参加しているゲームのID
+        score:
+          type: number
+          format: double
+          description: 現在の実装の類似度
+        impl_img_url:
+          type: string
+          description: 現在の実装のレンダリング結果画像のURL
+    Vote:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 投票の一意な識別子
+        game_id:
+          type: integer
+          format: int64
+          description: 投票を行ったゲームのID
+        player_id:
+          type: integer
+          format: int64
+          description: 投票先のプレイヤーのID
+  requestBodies:
+    postGamesRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: ゲーム名
+            required:
+              - name
+    postVoteRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              player_id:
+                type: integer
+                format: int64
+                description: 投票するプレイヤーのID
+            required:
+              - player_id
+    postPlayersRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: プレイヤー名
+            required:
+              - name
+  responses:
+    getGamesResponse:
+      description: 作成されたゲームを全て返します
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Game'
+    postGamesResponse:
+      description: ゲームを作成した結果を返します
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Game'
+    getGameResponse:
+      description: 対象のゲームのデータを返します
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Game'
+    getVoteResponse:
+      description: 投票結果を返します
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Vote'
+    postVoteResponse:
+      description: 投票に対するレスポンスを返します
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                default: 'ok'
+    getPlayersResponse:
+      description: ゲームに参加しているプレイヤー情報を返します
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Player'
+    postPlayersResponse:
+      description: 新規作成したプレイヤーデータを返します
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Player'
