@@ -5,6 +5,8 @@ use openapi::{
     models::{self, PutGamePathParams},
 };
 
+use crate::model::game::get_all_games;
+
 use super::api_impl::ApiImpl;
 
 #[async_trait]
@@ -25,7 +27,11 @@ impl Games for ApiImpl {
         _host: Host,
         _cookies: CookieJar,
     ) -> Result<GetGamesResponse, String> {
-        todo!()
+        let games = match get_all_games(&self.pool).await {
+            Ok(games) => games.into_iter().map(openapi::models::Game::from).collect(),
+            Err(err) => return Err(err.to_string()),
+        };
+        Ok(GetGamesResponse::Status200(games))
     }
 
     async fn post_games(
