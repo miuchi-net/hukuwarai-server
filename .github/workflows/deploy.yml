@@ -1,0 +1,25 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  push-image:
+    name: Push Docker Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v22
+      - name: Build the image
+        run: docker load < $(nix build ".#dockerImages.hukuwarai")
+      - name: Tag the image
+        run: docker tag hukuwarai-server:latest "ghcr.io/miuchi-net/hukuwarai-server:latest"
+      - name: Login to the registry
+        run: echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
+      - name: Push the image
+        run: docker push --all-tags "ghcr.io/miuchi-net/hukuwarai-server"
