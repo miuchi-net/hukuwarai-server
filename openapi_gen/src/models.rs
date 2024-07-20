@@ -574,6 +574,11 @@ pub struct PostGamesRequest {
     #[serde(rename = "name")]
     pub name: String,
 
+/// 正解画像 URL
+    #[serde(rename = "answer_url")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub answer_url: Option<String>,
+
 }
 
 
@@ -582,6 +587,7 @@ impl PostGamesRequest {
     pub fn new(name: String, ) -> PostGamesRequest {
         PostGamesRequest {
             name,
+            answer_url: None,
         }
     }
 }
@@ -595,6 +601,14 @@ impl std::fmt::Display for PostGamesRequest {
 
             Some("name".to_string()),
             Some(self.name.to_string()),
+
+
+            self.answer_url.as_ref().map(|answer_url| {
+                [
+                    "answer_url".to_string(),
+                    answer_url.to_string(),
+                ].join(",")
+            }),
 
         ];
 
@@ -614,6 +628,7 @@ impl std::str::FromStr for PostGamesRequest {
         #[allow(dead_code)]
         struct IntermediateRep {
             pub name: Vec<String>,
+            pub answer_url: Vec<String>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -633,6 +648,8 @@ impl std::str::FromStr for PostGamesRequest {
                 match key {
                     #[allow(clippy::redundant_clone)]
                     "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "answer_url" => intermediate_rep.answer_url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing PostGamesRequest".to_string())
                 }
             }
@@ -644,6 +661,7 @@ impl std::str::FromStr for PostGamesRequest {
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(PostGamesRequest {
             name: intermediate_rep.name.into_iter().next().ok_or_else(|| "name missing in PostGamesRequest".to_string())?,
+            answer_url: intermediate_rep.answer_url.into_iter().next(),
         })
     }
 }
