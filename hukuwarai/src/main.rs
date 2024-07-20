@@ -1,7 +1,9 @@
 use std::env;
 
+use axum::http::Method;
 use handlers::api_impl::ApiImpl;
 use sqlx::postgres::PgPoolOptions;
+use tower_http::cors::{self, CorsLayer};
 
 pub mod handlers;
 pub mod model;
@@ -20,7 +22,11 @@ async fn main() -> anyhow::Result<()> {
 
     sqlx::migrate!().run(&pool).await?;
 
-    let router = openapi::server::new(ApiImpl { pool });
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
+        .allow_origin(cors::Any)
+        .allow_headers(cors::Any);
+    let router = openapi::server::new(ApiImpl { pool }).layer(cors);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:31000")
         .await
         .unwrap();
