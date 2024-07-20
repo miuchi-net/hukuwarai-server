@@ -1,7 +1,6 @@
 use std::env;
 
 use handlers::api_impl::ApiImpl;
-use openapi::server::new;
 use sqlx::postgres::PgPoolOptions;
 
 pub mod handlers;
@@ -21,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
 
     sqlx::migrate!().run(&pool).await?;
 
-    let router = new(ApiImpl {});
+    let router = openapi::server::new(ApiImpl { pool });
     let listener = tokio::net::TcpListener::bind("0.0.0.0:31000")
         .await
         .unwrap();
