@@ -2,7 +2,7 @@ use sqlx::{Pool, Postgres};
 
 #[derive(Clone)]
 pub struct ApiImpl {
-    pub pool: Pool<Postgres>
+    pub pool: Pool<Postgres>,
 }
 
 impl AsRef<ApiImpl> for ApiImpl {

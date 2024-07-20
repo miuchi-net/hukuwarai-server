@@ -48,7 +48,7 @@ pub async fn get_player_by_id(
 pub async fn add_player(
     pool: &sqlx::PgPool,
     name: &str,
-    game_id: i64,
+    game_id: i32,
 ) -> Result<Player, sqlx::Error> {
     let result = sqlx::query_as::<_, Player>(
         "INSERT INTO players (name, game_id) VALUES ($1, $2) RETURNING id, name, game_id",
