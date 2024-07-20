@@ -53,10 +53,11 @@
               nil
               toolchain
               rust-analyzer
+              crate2nix
             ];
         };
         packages.hukuwarai = generatedBuild.rootCrate.build;
-        packages.default = packages.negima;
+        packages.default = packages.hukuwarai;
         apps.${system}.default = {
           type = "app";
           program = "${self.packages.default}/bin/hukuwarai";
