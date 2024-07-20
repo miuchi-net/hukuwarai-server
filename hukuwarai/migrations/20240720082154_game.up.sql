@@ -4,5 +4,5 @@ create table games (
     name text not null,
     started boolean not null default false,
     finished boolean not null default false,
-    answer_url text not null,
+    answer_url text not null
 );
