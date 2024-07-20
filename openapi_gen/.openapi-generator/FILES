@@ -1,9 +1,10 @@
 .gitignore
 Cargo.toml
 README.md
-src/apis/game.rs
+src/apis/games.rs
 src/apis/mod.rs
 src/apis/players.rs
+src/apis/scores.rs
 src/apis/votes.rs
 src/header.rs
 src/lib.rs

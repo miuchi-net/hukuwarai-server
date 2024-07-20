@@ -48,6 +48,15 @@ use crate::{models, types::*};
       
     #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
+    pub struct PostScoresPathParams {
+            /// 対象のゲームのID
+                pub game_id: i64,
+    }
+
+
+      
+    #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+    #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct GetVotePathParams {
             /// 対象のゲームのID
                 pub game_id: i64,
@@ -410,16 +419,6 @@ pub struct Player {
     #[serde(skip_serializing_if="Option::is_none")]
     pub game_id: Option<i64>,
 
-/// 現在の実装の類似度
-    #[serde(rename = "score")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub score: Option<f64>,
-
-/// 現在の実装のレンダリング結果画像のURL
-    #[serde(rename = "impl_img_url")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub impl_img_url: Option<String>,
-
 }
 
 
@@ -430,8 +429,6 @@ impl Player {
             id: None,
             name: None,
             game_id: None,
-            score: None,
-            impl_img_url: None,
         }
     }
 }
@@ -466,22 +463,6 @@ impl std::fmt::Display for Player {
                 ].join(",")
             }),
 
-
-            self.score.as_ref().map(|score| {
-                [
-                    "score".to_string(),
-                    score.to_string(),
-                ].join(",")
-            }),
-
-
-            self.impl_img_url.as_ref().map(|impl_img_url| {
-                [
-                    "impl_img_url".to_string(),
-                    impl_img_url.to_string(),
-                ].join(",")
-            }),
-
         ];
 
         write!(f, "{}", params.into_iter().flatten().collect::<Vec<_>>().join(","))
@@ -502,8 +483,6 @@ impl std::str::FromStr for Player {
             pub id: Vec<i64>,
             pub name: Vec<String>,
             pub game_id: Vec<i64>,
-            pub score: Vec<f64>,
-            pub impl_img_url: Vec<String>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -527,10 +506,6 @@ impl std::str::FromStr for Player {
                     "name" => intermediate_rep.name.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
                     "game_id" => intermediate_rep.game_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
-                    #[allow(clippy::redundant_clone)]
-                    "score" => intermediate_rep.score.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
-                    #[allow(clippy::redundant_clone)]
-                    "impl_img_url" => intermediate_rep.impl_img_url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Player".to_string())
                 }
             }
@@ -544,8 +519,6 @@ impl std::str::FromStr for Player {
             id: intermediate_rep.id.into_iter().next(),
             name: intermediate_rep.name.into_iter().next(),
             game_id: intermediate_rep.game_id.into_iter().next(),
-            score: intermediate_rep.score.into_iter().next(),
-            impl_img_url: intermediate_rep.impl_img_url.into_iter().next(),
         })
     }
 }
@@ -846,6 +819,144 @@ impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<PostPlayersR
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct PostScoresRequest {
+/// ソースコード
+    #[serde(rename = "code")]
+    pub code: String,
+
+/// プレイ中のプレイヤーのID
+    #[serde(rename = "player_id")]
+    pub player_id: i64,
+
+}
+
+
+impl PostScoresRequest {
+    #[allow(clippy::new_without_default, clippy::too_many_arguments)]
+    pub fn new(code: String, player_id: i64, ) -> PostScoresRequest {
+        PostScoresRequest {
+            code,
+            player_id,
+        }
+    }
+}
+
+/// Converts the PostScoresRequest value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::fmt::Display for PostScoresRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let params: Vec<Option<String>> = vec![
+
+            Some("code".to_string()),
+            Some(self.code.to_string()),
+
+
+            Some("player_id".to_string()),
+            Some(self.player_id.to_string()),
+
+        ];
+
+        write!(f, "{}", params.into_iter().flatten().collect::<Vec<_>>().join(","))
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a PostScoresRequest value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for PostScoresRequest {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        /// An intermediate representation of the struct to use for parsing.
+        #[derive(Default)]
+        #[allow(dead_code)]
+        struct IntermediateRep {
+            pub code: Vec<String>,
+            pub player_id: Vec<i64>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',');
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing PostScoresRequest".to_string())
+            };
+
+            if let Some(key) = key_result {
+                #[allow(clippy::match_single_binding)]
+                match key {
+                    #[allow(clippy::redundant_clone)]
+                    "code" => intermediate_rep.code.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "player_id" => intermediate_rep.player_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing PostScoresRequest".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(PostScoresRequest {
+            code: intermediate_rep.code.into_iter().next().ok_or_else(|| "code missing in PostScoresRequest".to_string())?,
+            player_id: intermediate_rep.player_id.into_iter().next().ok_or_else(|| "player_id missing in PostScoresRequest".to_string())?,
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<PostScoresRequest> and HeaderValue
+
+#[cfg(feature = "server")]
+impl std::convert::TryFrom<header::IntoHeaderValue<PostScoresRequest>> for HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<PostScoresRequest>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for PostScoresRequest - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(feature = "server")]
+impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<PostScoresRequest> {
+    type Error = String;
+
+    fn try_from(hdr_value: HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <PostScoresRequest as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into PostScoresRequest - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+
+
+
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct PostVote200Response {
     #[serde(rename = "status")]
     #[serde(skip_serializing_if="Option::is_none")]
@@ -1082,6 +1193,208 @@ impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<PostVoteRequ
                         std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
                         std::result::Result::Err(err) => std::result::Result::Err(
                             format!("Unable to convert header value '{}' into PostVoteRequest - {}",
+                                value, err))
+                    }
+             },
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Unable to convert header: {:?} to string: {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+
+
+
+
+
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct Score {
+/// スコアの一意な識別子
+    #[serde(rename = "id")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub id: Option<i64>,
+
+/// スコアを持つプレイヤーのID
+    #[serde(rename = "player_id")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub player_id: Option<i64>,
+
+/// スコアを持つゲームのID
+    #[serde(rename = "game_id")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub game_id: Option<i64>,
+
+/// スコア
+    #[serde(rename = "score")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub score: Option<f64>,
+
+/// ソースコード
+    #[serde(rename = "code")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub code: Option<String>,
+
+}
+
+
+impl Score {
+    #[allow(clippy::new_without_default, clippy::too_many_arguments)]
+    pub fn new() -> Score {
+        Score {
+            id: None,
+            player_id: None,
+            game_id: None,
+            score: None,
+            code: None,
+        }
+    }
+}
+
+/// Converts the Score value to the Query Parameters representation (style=form, explode=false)
+/// specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde serializer
+impl std::fmt::Display for Score {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let params: Vec<Option<String>> = vec![
+
+            self.id.as_ref().map(|id| {
+                [
+                    "id".to_string(),
+                    id.to_string(),
+                ].join(",")
+            }),
+
+
+            self.player_id.as_ref().map(|player_id| {
+                [
+                    "player_id".to_string(),
+                    player_id.to_string(),
+                ].join(",")
+            }),
+
+
+            self.game_id.as_ref().map(|game_id| {
+                [
+                    "game_id".to_string(),
+                    game_id.to_string(),
+                ].join(",")
+            }),
+
+
+            self.score.as_ref().map(|score| {
+                [
+                    "score".to_string(),
+                    score.to_string(),
+                ].join(",")
+            }),
+
+
+            self.code.as_ref().map(|code| {
+                [
+                    "code".to_string(),
+                    code.to_string(),
+                ].join(",")
+            }),
+
+        ];
+
+        write!(f, "{}", params.into_iter().flatten().collect::<Vec<_>>().join(","))
+    }
+}
+
+/// Converts Query Parameters representation (style=form, explode=false) to a Score value
+/// as specified in https://swagger.io/docs/specification/serialization/
+/// Should be implemented in a serde deserializer
+impl std::str::FromStr for Score {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        /// An intermediate representation of the struct to use for parsing.
+        #[derive(Default)]
+        #[allow(dead_code)]
+        struct IntermediateRep {
+            pub id: Vec<i64>,
+            pub player_id: Vec<i64>,
+            pub game_id: Vec<i64>,
+            pub score: Vec<f64>,
+            pub code: Vec<String>,
+        }
+
+        let mut intermediate_rep = IntermediateRep::default();
+
+        // Parse into intermediate representation
+        let mut string_iter = s.split(',');
+        let mut key_result = string_iter.next();
+
+        while key_result.is_some() {
+            let val = match string_iter.next() {
+                Some(x) => x,
+                None => return std::result::Result::Err("Missing value while parsing Score".to_string())
+            };
+
+            if let Some(key) = key_result {
+                #[allow(clippy::match_single_binding)]
+                match key {
+                    #[allow(clippy::redundant_clone)]
+                    "id" => intermediate_rep.id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "player_id" => intermediate_rep.player_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "game_id" => intermediate_rep.game_id.push(<i64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "score" => intermediate_rep.score.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "code" => intermediate_rep.code.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    _ => return std::result::Result::Err("Unexpected key while parsing Score".to_string())
+                }
+            }
+
+            // Get the next key
+            key_result = string_iter.next();
+        }
+
+        // Use the intermediate representation to return the struct
+        std::result::Result::Ok(Score {
+            id: intermediate_rep.id.into_iter().next(),
+            player_id: intermediate_rep.player_id.into_iter().next(),
+            game_id: intermediate_rep.game_id.into_iter().next(),
+            score: intermediate_rep.score.into_iter().next(),
+            code: intermediate_rep.code.into_iter().next(),
+        })
+    }
+}
+
+// Methods for converting between header::IntoHeaderValue<Score> and HeaderValue
+
+#[cfg(feature = "server")]
+impl std::convert::TryFrom<header::IntoHeaderValue<Score>> for HeaderValue {
+    type Error = String;
+
+    fn try_from(hdr_value: header::IntoHeaderValue<Score>) -> std::result::Result<Self, Self::Error> {
+        let hdr_value = hdr_value.to_string();
+        match HeaderValue::from_str(&hdr_value) {
+             std::result::Result::Ok(value) => std::result::Result::Ok(value),
+             std::result::Result::Err(e) => std::result::Result::Err(
+                 format!("Invalid header value for Score - value: {} is invalid {}",
+                     hdr_value, e))
+        }
+    }
+}
+
+#[cfg(feature = "server")]
+impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<Score> {
+    type Error = String;
+
+    fn try_from(hdr_value: HeaderValue) -> std::result::Result<Self, Self::Error> {
+        match hdr_value.to_str() {
+             std::result::Result::Ok(value) => {
+                    match <Score as std::str::FromStr>::from_str(value) {
+                        std::result::Result::Ok(value) => std::result::Result::Ok(header::IntoHeaderValue(value)),
+                        std::result::Result::Err(err) => std::result::Result::Err(
+                            format!("Unable to convert header value '{}' into Score - {}",
                                 value, err))
                     }
              },
