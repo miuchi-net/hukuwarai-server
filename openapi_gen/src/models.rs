@@ -576,18 +576,17 @@ pub struct PostGamesRequest {
 
 /// 正解画像 URL
     #[serde(rename = "answer_url")]
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub answer_url: Option<String>,
+    pub answer_url: String,
 
 }
 
 
 impl PostGamesRequest {
     #[allow(clippy::new_without_default, clippy::too_many_arguments)]
-    pub fn new(name: String, ) -> PostGamesRequest {
+    pub fn new(name: String, answer_url: String, ) -> PostGamesRequest {
         PostGamesRequest {
             name,
-            answer_url: None,
+            answer_url,
         }
     }
 }
@@ -603,12 +602,8 @@ impl std::fmt::Display for PostGamesRequest {
             Some(self.name.to_string()),
 
 
-            self.answer_url.as_ref().map(|answer_url| {
-                [
-                    "answer_url".to_string(),
-                    answer_url.to_string(),
-                ].join(",")
-            }),
+            Some("answer_url".to_string()),
+            Some(self.answer_url.to_string()),
 
         ];
 
@@ -661,7 +656,7 @@ impl std::str::FromStr for PostGamesRequest {
         // Use the intermediate representation to return the struct
         std::result::Result::Ok(PostGamesRequest {
             name: intermediate_rep.name.into_iter().next().ok_or_else(|| "name missing in PostGamesRequest".to_string())?,
-            answer_url: intermediate_rep.answer_url.into_iter().next(),
+            answer_url: intermediate_rep.answer_url.into_iter().next().ok_or_else(|| "answer_url missing in PostGamesRequest".to_string())?,
         })
     }
 }
