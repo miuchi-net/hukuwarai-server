@@ -25,7 +25,7 @@ where
             get(get_games::<I, A>).post(post_games::<I, A>)
         )
         .route("/game/:game_id",
-            get(get_game::<I, A>)
+            get(get_game::<I, A>).put(put_game::<I, A>)
         )
         .route("/players/:game_id",
             get(get_players::<I, A>).post(post_players::<I, A>)
@@ -288,6 +288,118 @@ where
                                                         StatusCode::INTERNAL_SERVER_ERROR
                                                       })).await.unwrap()?;
                                                   response.body(Body::from(body_content))
+                                                },
+                                            },
+                                            Err(_) => {
+                                                // Application code returned an error. This should not happen, as the implementation should
+                                                // return a valid response.
+                                                response.status(500).body(Body::empty())
+                                            },
+                                        };
+
+                                        resp.map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })
+}
+
+    #[derive(validator::Validate)]
+    #[allow(dead_code)]
+    struct PutGameBodyValidator<'a> {
+            #[validate(nested)]
+          body: &'a models::Game,
+    }
+
+
+#[tracing::instrument(skip_all)]
+fn put_game_validation(
+  path_params: models::PutGamePathParams,
+        body: Option<models::Game>,
+) -> std::result::Result<(
+  models::PutGamePathParams,
+        Option<models::Game>,
+), ValidationErrors>
+{
+  path_params.validate()?;
+            if let Some(body) = &body {
+              let b = PutGameBodyValidator { body };
+              b.validate()?;
+            }
+
+Ok((
+  path_params,
+    body,
+))
+}
+/// PutGame - PUT /game/{gameId}
+#[tracing::instrument(skip_all)]
+async fn put_game<I, A>(
+  method: Method,
+  host: Host,
+  cookies: CookieJar,
+  Path(path_params): Path<models::PutGamePathParams>,
+ State(api_impl): State<I>,
+          Json(body): Json<Option<models::Game>>,
+) -> Result<Response, StatusCode>
+where
+    I: AsRef<A> + Send + Sync,
+    A: apis::game::Game,
+{
+
+      #[allow(clippy::redundant_closure)]
+      let validation = tokio::task::spawn_blocking(move ||
+    put_game_validation(
+        path_params,
+          body,
+    )
+  ).await.unwrap();
+
+  let Ok((
+    path_params,
+      body,
+  )) = validation else {
+    return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(validation.unwrap_err().to_string()))
+            .map_err(|_| StatusCode::BAD_REQUEST);
+  };
+
+  let result = api_impl.as_ref().put_game(
+      method,
+      host,
+      cookies,
+        path_params,
+              body,
+  ).await;
+
+  let mut response = Response::builder();
+
+  let resp = match result {
+                                            Ok(rsp) => match rsp {
+                                                apis::game::PutGameResponse::Status200
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(200);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_str("application/json").map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })?);
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                                apis::game::PutGameResponse::Status400_BadRequest
+                                                => {
+                                                  let mut response = response.status(400);
+                                                  response.body(Body::empty())
+                                                },
+                                                apis::game::PutGameResponse::Status404_NotFound
+                                                => {
+                                                  let mut response = response.status(404);
+                                                  response.body(Body::empty())
                                                 },
                                             },
                                             Err(_) => {

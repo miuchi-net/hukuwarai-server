@@ -21,6 +21,15 @@ use crate::{models, types::*};
       
     #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
+    pub struct PutGamePathParams {
+            /// 対象のゲームのID
+                pub game_id: i64,
+    }
+
+
+      
+    #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+    #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct GetPlayersPathParams {
             /// 対象のゲームのID
                 pub game_id: i64,

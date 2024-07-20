@@ -40,6 +40,21 @@ pub enum PostGamesResponse {
     (models::Game)
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+#[allow(clippy::large_enum_variant)]
+pub enum PutGameResponse {
+    /// 対象のゲームのデータを変更したものを返します
+    Status200
+    (models::Game)
+    ,
+    /// Bad Request
+    Status400_BadRequest
+    ,
+    /// Not Found
+    Status404_NotFound
+}
+
 
 /// Game
 #[async_trait]
@@ -76,4 +91,16 @@ pub trait Game {
     cookies: CookieJar,
             body: Option<models::PostGamesRequest>,
     ) -> Result<PostGamesResponse, String>;
+
+    /// ゲームデータ変更API.
+    ///
+    /// PutGame - PUT /game/{gameId}
+    async fn put_game(
+    &self,
+    method: Method,
+    host: Host,
+    cookies: CookieJar,
+      path_params: models::PutGamePathParams,
+            body: Option<models::Game>,
+    ) -> Result<PutGameResponse, String>;
 }
