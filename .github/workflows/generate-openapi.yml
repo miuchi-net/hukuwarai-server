@@ -1,0 +1,26 @@
+name: generate openapi
+
+on:
+  push:
+    branches: [main]
+    paths: schema/api.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://openapitools/openapi-generator-cli:7.7
+        with:
+          args: generate -i schema/api.yml -g rust-axum -o ./openapi_gen
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: openapi gen
+          title: update OpenAPI gen
+          branch: update-openapi-gen
+          branch-suffix: short-commit-hash
