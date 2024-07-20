@@ -69,7 +69,7 @@
         };
         packages.dockerImages = {
           hukuwarai = pkgs.dockerTools.buildImage {
-            name = "hukuwarai";
+            name = "hukuwarai-server";
             tag = "latest";
             copyToRoot = pkgs.buildEnv {
               name = "hukuwarai-env";
