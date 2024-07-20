@@ -54,6 +54,7 @@
               toolchain
               rust-analyzer
               crate2nix
+              openapi-generator-cli
             ];
         };
         packages.hukuwarai = generatedBuild.rootCrate.build;
