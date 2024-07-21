@@ -76,7 +76,7 @@ impl Scores for ApiImpl {
                 return Err(err.to_string());
             }
         };
-        let similarity_api_url = format!("{}/similarity", inference_api_endpoint);
+        let similarity_api_url = format!("{}/similarity2", inference_api_endpoint);
         let response = reqwest::Client::new()
             .post(&similarity_api_url)
             .json(&serde_json::json!({
@@ -86,7 +86,7 @@ impl Scores for ApiImpl {
                 "img2": {
                     "url": game.answer_url
                 },
-                "model_name": "mse"
+                "model_name": "timm/convit_tiny.fb_in1k"
             }))
             .send()
             .await
