@@ -17,3 +17,7 @@ services:
       - ./schema/api.yml:/tmp/api.yml:ro
     ports:
       - 4010:4010
+  inference:
+    image: ghcr.io/miuchi-net/hukuwarai-inference:latest
+    environment:
+      
