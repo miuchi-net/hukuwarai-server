@@ -3,14 +3,19 @@ use std::env;
 use axum::{async_trait, extract::Host, http::Method};
 use axum_extra::extract::CookieJar;
 use openapi::{
-    apis::scores::{GetScoresResponse, GetScoresResultResponse, PostScoresResponse, Scores},
+    apis::scores::{
+        GetScoresPredataResponse, GetScoresResponse, GetScoresResultResponse, PostScoresResponse,
+        Scores,
+    },
     models::{
-        GetScoresPathParams, GetScoresResultPathParams, PostScoresPathParams, PostScoresRequest,
+        GetScoresPathParams, GetScoresPredata200ResponseInner, GetScoresPredataPathParams,
+        GetScoresResultPathParams, PostScoresPathParams, PostScoresRequest,
     },
 };
-use serde_json::Value;
 
-use crate::model::score::{add_score, get_final_scores_by_game_id, get_scores_by_game_id};
+use crate::model::score::{
+    add_score, get_final_scores_by_game_id, get_pre_scores, get_scores_by_game_id,
+};
 
 use super::api_impl::ApiImpl;
 
@@ -55,7 +60,9 @@ impl Scores for ApiImpl {
                 "Missing image_url in response".to_string()
             })?
             .to_string();
+
         println!("after-rendered_url");
+        let rendered_url = "dummy_url";
         let score_value = 0.0;
         let score = match add_score(
             &self.pool,
@@ -105,5 +112,20 @@ impl Scores for ApiImpl {
         };
         let scores = scores.into_iter().map(|score| score.into()).collect();
         Ok(GetScoresResponse::Status200(scores))
+    }
+
+    async fn get_scores_predata(
+        &self,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
+        path_params: GetScoresPredataPathParams,
+    ) -> Result<GetScoresPredataResponse, String> {
+        let scores = match get_pre_scores(&self.pool, path_params.game_id).await {
+            Ok(scores) => scores,
+            Err(err) => return Err(err.to_string()),
+        };
+        let scores = scores.into_iter().map(|score| score.into()).collect();
+        Ok(GetScoresPredataResponse::Status200(scores))
     }
 }

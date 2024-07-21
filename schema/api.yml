@@ -176,6 +176,28 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
+  "/scores/{gameId}/pre":
+    get:
+      operationId: getScoresPredata
+      tags:
+        - scores
+      summary: 整形済みスコア取得API
+      description: 整形済みのスコアデータを返します
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: 対象のゲームのID
+      responses:
+        '200':
+          $ref: '#/components/responses/getScoresPreResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
   "/scores/{gameId}/result":
     get:
       operationId: getScoresResult
@@ -463,6 +485,23 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Score'
+    getScoresPreResponse:
+      description: そのゲームの全ての整形済みスコアデータを返します
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                player_id:
+                  type: integer
+                  format: int32
+                  description: プレイヤーのID
+                scores:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Score'
     postScoreResponse:
       description: 追加したスコアを返します
       content:
