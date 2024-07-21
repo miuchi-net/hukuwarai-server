@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use serde::Serialize;
 
 #[derive(sqlx::FromRow)]
 pub struct Score {
@@ -9,6 +10,12 @@ pub struct Score {
     pub code: String,
     pub rendered_url: String,
     pub created_at: NaiveDateTime,
+}
+
+#[derive(Serialize)]
+struct PreScore {
+    player_id: i32,
+    scores: Vec<openapi::models::Score>,
 }
 
 impl From<Score> for openapi::models::Score {

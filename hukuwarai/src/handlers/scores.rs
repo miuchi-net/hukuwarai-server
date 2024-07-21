@@ -1,18 +1,21 @@
 use axum::{async_trait, extract::Host, http::Method};
 use axum_extra::extract::CookieJar;
 use openapi::{
-    apis::scores::{GetScoresResponse, GetScoresResultResponse, PostScoresResponse, Scores},
+    apis::scores::{
+        GetScoresPredataResponse, GetScoresResponse, GetScoresResultResponse, PostScoresResponse,
+        Scores,
+    },
     models::{
-        GetScoresPathParams, GetScoresResultPathParams, PostScoresPathParams, PostScoresRequest,
+        GetScoresPathParams, GetScoresPredataPathParams, GetScoresResultPathParams,
+        PostScoresPathParams, PostScoresRequest,
     },
 };
-use serde_json::Value;
 
 use crate::model::score::{add_score, get_final_scores_by_game_id, get_scores_by_game_id};
 
 use super::api_impl::ApiImpl;
 
-const INFERENCE_SERVER_URL: &str = "https://1c85c53de277.ngrok.app";
+const INFERENCE_SERVER_URL: &str = "https://14d0aa0ae65e.ngrok.app/";
 
 #[async_trait]
 impl Scores for ApiImpl {
@@ -98,5 +101,15 @@ impl Scores for ApiImpl {
         };
         let scores = scores.into_iter().map(|score| score.into()).collect();
         Ok(GetScoresResponse::Status200(scores))
+    }
+
+    async fn get_scores_predata(
+        &self,
+        method: Method,
+        host: Host,
+        cookies: CookieJar,
+        path_params: GetScoresPredataPathParams,
+    ) -> Result<GetScoresPredataResponse, String> {
+        todo!()
     }
 }

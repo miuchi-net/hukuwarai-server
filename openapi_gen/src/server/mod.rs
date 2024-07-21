@@ -33,6 +33,9 @@ where
         .route("/scores/:game_id",
             get(get_scores::<I, A>).post(post_scores::<I, A>)
         )
+        .route("/scores/:game_id/pre",
+            get(get_scores_predata::<I, A>)
+        )
         .route("/scores/:game_id/result",
             get(get_scores_result::<I, A>)
         )
@@ -703,6 +706,100 @@ where
                                                   response.body(Body::empty())
                                                 },
                                                 apis::scores::GetScoresResponse::Status404_NotFound
+                                                => {
+                                                  let mut response = response.status(404);
+                                                  response.body(Body::empty())
+                                                },
+                                            },
+                                            Err(_) => {
+                                                // Application code returned an error. This should not happen, as the implementation should
+                                                // return a valid response.
+                                                response.status(500).body(Body::empty())
+                                            },
+                                        };
+
+                                        resp.map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })
+}
+
+
+#[tracing::instrument(skip_all)]
+fn get_scores_predata_validation(
+  path_params: models::GetScoresPredataPathParams,
+) -> std::result::Result<(
+  models::GetScoresPredataPathParams,
+), ValidationErrors>
+{
+  path_params.validate()?;
+
+Ok((
+  path_params,
+))
+}
+/// GetScoresPredata - GET /scores/{gameId}/pre
+#[tracing::instrument(skip_all)]
+async fn get_scores_predata<I, A>(
+  method: Method,
+  host: Host,
+  cookies: CookieJar,
+  Path(path_params): Path<models::GetScoresPredataPathParams>,
+ State(api_impl): State<I>,
+) -> Result<Response, StatusCode>
+where
+    I: AsRef<A> + Send + Sync,
+    A: apis::scores::Scores,
+{
+
+      #[allow(clippy::redundant_closure)]
+      let validation = tokio::task::spawn_blocking(move ||
+    get_scores_predata_validation(
+        path_params,
+    )
+  ).await.unwrap();
+
+  let Ok((
+    path_params,
+  )) = validation else {
+    return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(validation.unwrap_err().to_string()))
+            .map_err(|_| StatusCode::BAD_REQUEST);
+  };
+
+  let result = api_impl.as_ref().get_scores_predata(
+      method,
+      host,
+      cookies,
+        path_params,
+  ).await;
+
+  let mut response = Response::builder();
+
+  let resp = match result {
+                                            Ok(rsp) => match rsp {
+                                                apis::scores::GetScoresPredataResponse::Status200
+                                                    (body)
+                                                => {
+                                                  let mut response = response.status(200);
+                                                  {
+                                                    let mut response_headers = response.headers_mut().unwrap();
+                                                    response_headers.insert(
+                                                        CONTENT_TYPE,
+                                                        HeaderValue::from_str("application/json").map_err(|e| { error!(error = ?e); StatusCode::INTERNAL_SERVER_ERROR })?);
+                                                  }
+
+                                                  let body_content =  tokio::task::spawn_blocking(move ||
+                                                      serde_json::to_vec(&body).map_err(|e| {
+                                                        error!(error = ?e);
+                                                        StatusCode::INTERNAL_SERVER_ERROR
+                                                      })).await.unwrap()?;
+                                                  response.body(Body::from(body_content))
+                                                },
+                                                apis::scores::GetScoresPredataResponse::Status400_BadRequest
+                                                => {
+                                                  let mut response = response.status(400);
+                                                  response.body(Body::empty())
+                                                },
+                                                apis::scores::GetScoresPredataResponse::Status404_NotFound
                                                 => {
                                                   let mut response = response.status(404);
                                                   response.body(Body::empty())

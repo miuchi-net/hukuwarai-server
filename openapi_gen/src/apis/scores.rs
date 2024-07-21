@@ -25,6 +25,21 @@ pub enum GetScoresResponse {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 #[allow(clippy::large_enum_variant)]
+pub enum GetScoresPredataResponse {
+    /// そのゲームの全ての整形済みスコアデータを返します
+    Status200
+    (Vec<models::GetScoresPredata200ResponseInner>)
+    ,
+    /// Bad Request
+    Status400_BadRequest
+    ,
+    /// Not Found
+    Status404_NotFound
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+#[allow(clippy::large_enum_variant)]
 pub enum GetScoresResultResponse {
     /// そのゲームの全ての最終スコアを返します
     Status200
@@ -67,6 +82,17 @@ pub trait Scores {
     cookies: CookieJar,
       path_params: models::GetScoresPathParams,
     ) -> Result<GetScoresResponse, String>;
+
+    /// 整形済みスコア取得API.
+    ///
+    /// GetScoresPredata - GET /scores/{gameId}/pre
+    async fn get_scores_predata(
+    &self,
+    method: Method,
+    host: Host,
+    cookies: CookieJar,
+      path_params: models::GetScoresPredataPathParams,
+    ) -> Result<GetScoresPredataResponse, String>;
 
     /// 結果スコア取得API.
     ///
