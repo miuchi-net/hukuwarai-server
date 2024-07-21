@@ -132,6 +132,27 @@ paths:
         "404":
           description: Not Found
   "/scores/${gameId}":
+    get:
+      operationId: getScores
+      tags:
+        - scores
+      summary: スコア取得API
+      description: ゲーム中に追加されたスコアを全て返します
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: 対象のゲームのID
+      responses:
+        '200':
+          $ref: '#/components/responses/getScoresResponse'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
     post:
       operationId: postScores
       tags:
@@ -154,6 +175,28 @@ paths:
         "400":
           description: Bad Request
         "404":
+          description: Not Found
+  "/scores/{gameId}/result":
+    get:
+      operationId: getScoresResult
+      tags:
+        - scores
+      summary: 結果スコア取得API
+      description: ゲーム中に追加された最終スコアを返します
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: 対象のゲームのID
+      responses:
+        '200':
+          $ref: '#/components/responses/getScoresResultResponse'
+        '400':
+          description: Bad Request
+        '404':
           description: Not Found
   "/players/{gameId}":
     get:
@@ -274,6 +317,9 @@ components:
         code:
           type: string
           description: ソースコード
+        rendered_url:
+          type: string
+          description: レンダリング画像のURL
   requestBodies:
     postGamesRequest:
       content:
@@ -397,6 +443,22 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Player"
+    getScoresResponse:
+      description: そのゲームの全てのスコアを返します
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Score'
+    getScoresResultResponse:
+      description: そのゲームの全ての最終スコアを返します
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Score'
     postScoreResponse:
       description: 追加したスコアを返します
       content:

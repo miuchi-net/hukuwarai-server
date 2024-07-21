@@ -48,6 +48,24 @@ use crate::{models, types::*};
       
     #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
     #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
+    pub struct GetScoresPathParams {
+            /// 対象のゲームのID
+                pub game_id: i32,
+    }
+
+
+      
+    #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+    #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
+    pub struct GetScoresResultPathParams {
+            /// 対象のゲームのID
+                pub game_id: i32,
+    }
+
+
+      
+    #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+    #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))] 
     pub struct PostScoresPathParams {
             /// 対象のゲームのID
                 pub game_id: i32,
@@ -1250,6 +1268,11 @@ pub struct Score {
     #[serde(skip_serializing_if="Option::is_none")]
     pub code: Option<String>,
 
+/// レンダリング画像のURL
+    #[serde(rename = "rendered_url")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub rendered_url: Option<String>,
+
 }
 
 
@@ -1262,6 +1285,7 @@ impl Score {
             game_id: None,
             score: None,
             code: None,
+            rendered_url: None,
         }
     }
 }
@@ -1312,6 +1336,14 @@ impl std::fmt::Display for Score {
                 ].join(",")
             }),
 
+
+            self.rendered_url.as_ref().map(|rendered_url| {
+                [
+                    "rendered_url".to_string(),
+                    rendered_url.to_string(),
+                ].join(",")
+            }),
+
         ];
 
         write!(f, "{}", params.into_iter().flatten().collect::<Vec<_>>().join(","))
@@ -1334,6 +1366,7 @@ impl std::str::FromStr for Score {
             pub game_id: Vec<i32>,
             pub score: Vec<f64>,
             pub code: Vec<String>,
+            pub rendered_url: Vec<String>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -1361,6 +1394,8 @@ impl std::str::FromStr for Score {
                     "score" => intermediate_rep.score.push(<f64 as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
                     "code" => intermediate_rep.code.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "rendered_url" => intermediate_rep.rendered_url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Score".to_string())
                 }
             }
@@ -1376,6 +1411,7 @@ impl std::str::FromStr for Score {
             game_id: intermediate_rep.game_id.into_iter().next(),
             score: intermediate_rep.score.into_iter().next(),
             code: intermediate_rep.code.into_iter().next(),
+            rendered_url: intermediate_rep.rendered_url.into_iter().next(),
         })
     }
 }
