@@ -1,3 +1,5 @@
+use std::env;
+
 use axum::{async_trait, extract::Host, http::Method};
 use axum_extra::extract::CookieJar;
 use openapi::{
@@ -12,8 +14,6 @@ use crate::model::score::{add_score, get_final_scores_by_game_id, get_scores_by_
 
 use super::api_impl::ApiImpl;
 
-const INFERENCE_SERVER_URL: &str = "https://1c85c53de277.ngrok.app";
-
 #[async_trait]
 impl Scores for ApiImpl {
     async fn post_scores(
@@ -26,9 +26,13 @@ impl Scores for ApiImpl {
     ) -> Result<PostScoresResponse, String> {
         let body = match body {
             Some(body) => body,
-            None => return Err("Missing body".to_string()),
+            None => {
+                tracing::error!("Missing body");
+                return Err("Missing body".to_string());
+            }
         };
-        let render_api_url = format!("{}/render", INFERENCE_SERVER_URL);
+        let inference_api_endpoint = env::var("INFERENCE_API_ENDPOINT").unwrap();
+        let render_api_url = format!("{}/render", inference_api_endpoint);
         let response = reqwest::Client::new()
             .post(&render_api_url)
             .json(&serde_json::json!({
@@ -64,8 +68,12 @@ impl Scores for ApiImpl {
         .await
         {
             Ok(score) => score,
-            Err(err) => return Err(err.to_string()),
+            Err(err) => {
+                tracing::error!("Failed to create record to scores table: {err}");
+                return Err(err.to_string());
+            }
         };
+
         Ok(PostScoresResponse::Status200(score.into()))
     }
 
