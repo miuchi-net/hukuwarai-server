@@ -1,3 +1,5 @@
+use std::env;
+
 use axum::{async_trait, extract::Host, http::Method};
 use axum_extra::extract::CookieJar;
 use openapi::{
@@ -17,8 +19,6 @@ use crate::model::score::{
 
 use super::api_impl::ApiImpl;
 
-const INFERENCE_SERVER_URL: &str = "https://14d0aa0ae65e.ngrok.app";
-
 #[async_trait]
 impl Scores for ApiImpl {
     async fn post_scores(
@@ -31,31 +31,36 @@ impl Scores for ApiImpl {
     ) -> Result<PostScoresResponse, String> {
         let body = match body {
             Some(body) => body,
-            None => return Err("Missing body".to_string()),
+            None => {
+                tracing::error!("Missing body");
+                return Err("Missing body".to_string());
+            }
         };
-        // let render_api_url = format!("{}/render", INFERENCE_SERVER_URL);
-        // let response = reqwest::Client::new()
-        //     .post(&render_api_url)
-        //     .json(&serde_json::json!({
-        //         "html_src": body.code
-        //     }))
-        //     .send()
-        //     .await
-        //     .map_err(|err| err.to_string())?;
-        // if !response.status().is_success() {
-        //     return Err(format!("Failed to render: {}", response.status()));
-        // }
-        // let response_body: Value = response.json().await.map_err(|err| err.to_string())?;
-        // let rendered_url = response_body["image_url"]
-        //     .as_str()
-        //     .ok_or_else(|| {
-        //         println!(
-        //             "response_body does not contain 'image_url': {:?}",
-        //             response_body
-        //         );
-        //         "Missing image_url in response".to_string()
-        //     })?
-        //     .to_string();
+        let inference_api_endpoint = env::var("INFERENCE_API_ENDPOINT").unwrap();
+        let render_api_url = format!("{}/render", inference_api_endpoint);
+        let response = reqwest::Client::new()
+            .post(&render_api_url)
+            .json(&serde_json::json!({
+                "html_src": body.code
+            }))
+            .send()
+            .await
+            .map_err(|err| err.to_string())?;
+        if !response.status().is_success() {
+            return Err(format!("Failed to render: {}", response.status()));
+        }
+        let response_body: Value = response.json().await.map_err(|err| err.to_string())?;
+        let rendered_url = response_body["image_url"]
+            .as_str()
+            .ok_or_else(|| {
+                println!(
+                    "response_body does not contain 'image_url': {:?}",
+                    response_body
+                );
+                "Missing image_url in response".to_string()
+            })?
+            .to_string();
+
         println!("after-rendered_url");
         let rendered_url = "dummy_url";
         let score_value = 0.0;
@@ -70,8 +75,12 @@ impl Scores for ApiImpl {
         .await
         {
             Ok(score) => score,
-            Err(err) => return Err(err.to_string()),
+            Err(err) => {
+                tracing::error!("Failed to create record to scores table: {err}");
+                return Err(err.to_string());
+            }
         };
+
         Ok(PostScoresResponse::Status200(score.into()))
     }
 
