@@ -6,10 +6,13 @@ use openapi::{
         GetScoresPathParams, GetScoresResultPathParams, PostScoresPathParams, PostScoresRequest,
     },
 };
+use serde_json::Value;
 
 use crate::model::score::{add_score, get_final_scores_by_game_id, get_scores_by_game_id};
 
 use super::api_impl::ApiImpl;
+
+const INFERENCE_SERVER_URL: &str = "https://1c85c53de277.ngrok.app";
 
 #[async_trait]
 impl Scores for ApiImpl {
@@ -25,15 +28,38 @@ impl Scores for ApiImpl {
             Some(body) => body,
             None => return Err("Missing body".to_string()),
         };
+        let render_api_url = format!("{}/render", INFERENCE_SERVER_URL);
+        let response = reqwest::Client::new()
+            .post(&render_api_url)
+            .json(&serde_json::json!({
+                "html_src": body.code
+            }))
+            .send()
+            .await
+            .map_err(|err| err.to_string())?;
+        if !response.status().is_success() {
+            return Err(format!("Failed to render: {}", response.status()));
+        }
+        let response_body: Value = response.json().await.map_err(|err| err.to_string())?;
+        let rendered_url = response_body["image_url"]
+            .as_str()
+            .ok_or_else(|| {
+                println!(
+                    "response_body does not contain 'image_url': {:?}",
+                    response_body
+                );
+                "Missing image_url in response".to_string()
+            })?
+            .to_string();
+        println!("after-rendered_url");
         let score_value = 0.0;
-        let rendered_url = "dummy-url";
         let score = match add_score(
             &self.pool,
             body.player_id,
             path_params.game_id,
             score_value,
             &body.code,
-            rendered_url,
+            &rendered_url,
         )
         .await
         {

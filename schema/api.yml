@@ -131,7 +131,7 @@ paths:
           description: Bad Request
         "404":
           description: Not Found
-  "/scores/${gameId}":
+  "/scores/{gameId}":
     get:
       operationId: getScores
       tags:

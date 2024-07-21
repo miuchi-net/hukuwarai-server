@@ -90,7 +90,7 @@ pub async fn add_score(
     rendered_url: &str,
 ) -> Result<Score, sqlx::Error> {
     let result = sqlx::query_as::<_, Score>(
-        "INSERT INTO scores (player_id, game_id, score, code, rendered_url) VALUES ($1, $2, $3, $4, $5) RETURNING id, player_id, game_id, score, code, rendered_url",
+        "INSERT INTO scores (player_id, game_id, score, code, rendered_url) VALUES ($1, $2, $3, $4, $5) RETURNING id, player_id, game_id, score, code, rendered_url, created_at",
     )
     .bind(player_id)
     .bind(game_id)

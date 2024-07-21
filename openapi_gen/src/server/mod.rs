@@ -30,7 +30,7 @@ where
         .route("/players/:game_id",
             get(get_players::<I, A>).post(post_players::<I, A>)
         )
-        .route("/scores/$:game_id",
+        .route("/scores/:game_id",
             get(get_scores::<I, A>).post(post_scores::<I, A>)
         )
         .route("/scores/:game_id/result",
@@ -638,7 +638,7 @@ Ok((
   path_params,
 ))
 }
-/// GetScores - GET /scores/${gameId}
+/// GetScores - GET /scores/{gameId}
 #[tracing::instrument(skip_all)]
 async fn get_scores<I, A>(
   method: Method,
@@ -840,7 +840,7 @@ Ok((
     body,
 ))
 }
-/// PostScores - POST /scores/${gameId}
+/// PostScores - POST /scores/{gameId}
 #[tracing::instrument(skip_all)]
 async fn post_scores<I, A>(
   method: Method,

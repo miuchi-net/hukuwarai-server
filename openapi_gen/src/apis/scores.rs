@@ -59,7 +59,7 @@ pub enum PostScoresResponse {
 pub trait Scores {
     /// スコア取得API.
     ///
-    /// GetScores - GET /scores/${gameId}
+    /// GetScores - GET /scores/{gameId}
     async fn get_scores(
     &self,
     method: Method,
@@ -81,7 +81,7 @@ pub trait Scores {
 
     /// スコア追加API.
     ///
-    /// PostScores - POST /scores/${gameId}
+    /// PostScores - POST /scores/{gameId}
     async fn post_scores(
     &self,
     method: Method,
