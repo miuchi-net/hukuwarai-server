@@ -30,11 +30,10 @@ pub async fn get_game_by_id(
     pool: &sqlx::PgPool,
     game_id: i32,
 ) -> Result<Option<Game>, sqlx::Error> {
-    let game =
-        sqlx::query_as::<_, Game>("SELECT id, name, started, finished FROM games WHERE id = $1")
-            .bind(game_id)
-            .fetch_optional(pool)
-            .await?;
+    let game = sqlx::query_as::<_, Game>("SELECT * FROM games WHERE id = $1")
+        .bind(game_id)
+        .fetch_optional(pool)
+        .await?;
     Ok(game)
 }
 

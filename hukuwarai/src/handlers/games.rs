@@ -21,9 +21,19 @@ impl Games for ApiImpl {
         let game = match get_game_by_id(&self.pool, path_params.game_id).await {
             Ok(game) => match game {
                 Some(game) => openapi::models::Game::from(game),
-                None => return Ok(GetGameResponse::Status404_NotFound),
+                None => {
+                    tracing::error!("Game does not exist: {}", path_params.game_id);
+                    return Ok(GetGameResponse::Status404_NotFound);
+                }
             },
-            Err(err) => return Err(err.to_string()),
+            Err(err) => {
+                tracing::error!(
+                    "Failed to fetch game by id: {} {}",
+                    path_params.game_id,
+                    err
+                );
+                return Err(err.to_string());
+            }
         };
         Ok(GetGameResponse::Status200(game))
     }
