@@ -6,16 +6,18 @@ use openapi::{
         Scores,
     },
     models::{
-        GetScoresPathParams, GetScoresPredataPathParams, GetScoresResultPathParams,
-        PostScoresPathParams, PostScoresRequest,
+        GetScoresPathParams, GetScoresPredata200ResponseInner, GetScoresPredataPathParams,
+        GetScoresResultPathParams, PostScoresPathParams, PostScoresRequest,
     },
 };
 
-use crate::model::score::{add_score, get_final_scores_by_game_id, get_scores_by_game_id};
+use crate::model::score::{
+    add_score, get_final_scores_by_game_id, get_pre_scores, get_scores_by_game_id,
+};
 
 use super::api_impl::ApiImpl;
 
-const INFERENCE_SERVER_URL: &str = "https://14d0aa0ae65e.ngrok.app/";
+const INFERENCE_SERVER_URL: &str = "https://14d0aa0ae65e.ngrok.app";
 
 #[async_trait]
 impl Scores for ApiImpl {
@@ -105,11 +107,16 @@ impl Scores for ApiImpl {
 
     async fn get_scores_predata(
         &self,
-        method: Method,
-        host: Host,
-        cookies: CookieJar,
+        _method: Method,
+        _host: Host,
+        _cookies: CookieJar,
         path_params: GetScoresPredataPathParams,
     ) -> Result<GetScoresPredataResponse, String> {
-        todo!()
+        let scores = match get_pre_scores(&self.pool, path_params.game_id).await {
+            Ok(scores) => scores,
+            Err(err) => return Err(err.to_string()),
+        };
+        let scores = scores.into_iter().map(|score| score.into()).collect();
+        Ok(GetScoresPredataResponse::Status200(scores))
     }
 }

@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use chrono::NaiveDateTime;
+use openapi::models::GetScoresPredata200ResponseInner;
 use serde::Serialize;
 
 #[derive(sqlx::FromRow)]
@@ -13,7 +16,7 @@ pub struct Score {
 }
 
 #[derive(Serialize)]
-struct PreScore {
+pub struct PreScore {
     player_id: i32,
     scores: Vec<openapi::models::Score>,
 }
@@ -32,11 +35,42 @@ impl From<Score> for openapi::models::Score {
     }
 }
 
+impl From<PreScore> for GetScoresPredata200ResponseInner {
+    fn from(pre_score: PreScore) -> Self {
+        GetScoresPredata200ResponseInner {
+            player_id: Some(pre_score.player_id),
+            scores: Some(pre_score.scores),
+        }
+    }
+}
+
 pub async fn get_all_scores(pool: &sqlx::PgPool) -> Result<Vec<Score>, sqlx::Error> {
     let scores = sqlx::query_as::<_, Score>("SELECT * FROM scores")
         .fetch_all(pool)
         .await?;
     Ok(scores)
+}
+
+pub async fn get_pre_scores(
+    pool: &sqlx::PgPool,
+    game_id: i32,
+) -> Result<Vec<PreScore>, sqlx::Error> {
+    let scores = get_scores_by_game_id(pool, game_id).await?;
+    let mut grouped_scores: HashMap<i32, Vec<openapi::models::Score>> = HashMap::new();
+
+    for score in scores {
+        let entry = grouped_scores
+            .entry(score.player_id)
+            .or_insert_with(Vec::new);
+        entry.push(score.into());
+    }
+
+    let pre_scores: Vec<PreScore> = grouped_scores
+        .into_iter()
+        .map(|(player_id, scores)| PreScore { player_id, scores })
+        .collect();
+
+    Ok(pre_scores)
 }
 
 pub async fn get_score_by_id(
