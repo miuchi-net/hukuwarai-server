@@ -1273,6 +1273,11 @@ pub struct Score {
     #[serde(skip_serializing_if="Option::is_none")]
     pub rendered_url: Option<String>,
 
+/// スコアが作成された日時
+    #[serde(rename = "created_at")]
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub created_at: Option<chrono::DateTime::<chrono::Utc>>,
+
 }
 
 
@@ -1286,6 +1291,7 @@ impl Score {
             score: None,
             code: None,
             rendered_url: None,
+            created_at: None,
         }
     }
 }
@@ -1344,6 +1350,8 @@ impl std::fmt::Display for Score {
                 ].join(",")
             }),
 
+            // Skipping created_at in query parameter serialization
+
         ];
 
         write!(f, "{}", params.into_iter().flatten().collect::<Vec<_>>().join(","))
@@ -1367,6 +1375,7 @@ impl std::str::FromStr for Score {
             pub score: Vec<f64>,
             pub code: Vec<String>,
             pub rendered_url: Vec<String>,
+            pub created_at: Vec<chrono::DateTime::<chrono::Utc>>,
         }
 
         let mut intermediate_rep = IntermediateRep::default();
@@ -1396,6 +1405,8 @@ impl std::str::FromStr for Score {
                     "code" => intermediate_rep.code.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     #[allow(clippy::redundant_clone)]
                     "rendered_url" => intermediate_rep.rendered_url.push(<String as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
+                    #[allow(clippy::redundant_clone)]
+                    "created_at" => intermediate_rep.created_at.push(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(val).map_err(|x| x.to_string())?),
                     _ => return std::result::Result::Err("Unexpected key while parsing Score".to_string())
                 }
             }
@@ -1412,6 +1423,7 @@ impl std::str::FromStr for Score {
             score: intermediate_rep.score.into_iter().next(),
             code: intermediate_rep.code.into_iter().next(),
             rendered_url: intermediate_rep.rendered_url.into_iter().next(),
+            created_at: intermediate_rep.created_at.into_iter().next(),
         })
     }
 }

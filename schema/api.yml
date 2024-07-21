@@ -320,6 +320,10 @@ components:
         rendered_url:
           type: string
           description: レンダリング画像のURL
+        created_at:
+          type: string
+          format: date-time
+          description: スコアが作成された日時
   requestBodies:
     postGamesRequest:
       content:
