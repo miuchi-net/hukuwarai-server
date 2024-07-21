@@ -7,7 +7,7 @@ use openapi::{
     },
 };
 
-use crate::model::score::add_score;
+use crate::model::score::{add_score, get_final_scores_by_game_id, get_scores_by_game_id};
 
 use super::api_impl::ApiImpl;
 
@@ -48,9 +48,14 @@ impl Scores for ApiImpl {
         _method: Method,
         _host: Host,
         _cookies: CookieJar,
-        _path_params: GetScoresResultPathParams,
+        path_params: GetScoresResultPathParams,
     ) -> Result<GetScoresResultResponse, String> {
-        todo!()
+        let scores = match get_final_scores_by_game_id(&self.pool, path_params.game_id).await {
+            Ok(scores) => scores,
+            Err(err) => return Err(err.to_string()),
+        };
+        let scores = scores.into_iter().map(|score| score.into()).collect();
+        Ok(GetScoresResultResponse::Status200(scores))
     }
 
     async fn get_scores(
@@ -60,6 +65,11 @@ impl Scores for ApiImpl {
         _cookies: CookieJar,
         _path_params: GetScoresPathParams,
     ) -> Result<GetScoresResponse, String> {
-        todo!()
+        let scores = match get_scores_by_game_id(&self.pool, path_params.game_id).await {
+            Ok(scores) => scores,
+            Err(err) => return Err(err.to_string()),
+        };
+        let scores = scores.into_iter().map(|score| score.into()).collect();
+        Ok(GetScoresResponse::Status200(scores))
     }
 }

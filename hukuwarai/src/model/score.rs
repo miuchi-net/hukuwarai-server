@@ -58,6 +58,29 @@ pub async fn get_scores_by_game_id(
     Ok(scores)
 }
 
+pub async fn get_final_scores_by_game_id(
+    pool: &sqlx::PgPool,
+    game_id: i32,
+) -> Result<Vec<Score>, sqlx::Error> {
+    let scores = sqlx::query_as::<_, Score>(
+        "SELECT s.id, s.player_id, s.game_id, s.score, s.code, s.rendered_url s.created_at
+        FROM scores s
+        INNER JOIN (
+            SELECT player_id, MAX(created_at) as latest_score
+            FROM scores
+            WHERE game_id = $1
+            GROUP BY player_id
+        ) latest_scores
+        ON s.player_id = latest_scores.player_id AND s.created_at = latest_scores.latest_score
+        WHERE s.game_id = $1
+        ORDER BY s.score DESC",
+    )
+    .bind(game_id)
+    .fetch_all(pool)
+    .await?;
+    Ok(scores)
+}
+
 pub async fn add_score(
     pool: &sqlx::PgPool,
     player_id: i32,
