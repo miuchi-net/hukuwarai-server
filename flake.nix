@@ -73,7 +73,7 @@
             tag = "latest";
             copyToRoot = pkgs.buildEnv {
               name = "hukuwarai-env";
-              paths = [packages.hukuwarai pkgs.sqlx-cli pkgs.cacert];
+              paths = [packages.hukuwarai pkgs.sqlx-cli pkgs.cacert ./hukuwarai/migrations];
             };
             config = {
               Cmd = [
