@@ -63,7 +63,7 @@ impl Scores for ApiImpl {
         _method: Method,
         _host: Host,
         _cookies: CookieJar,
-        _path_params: GetScoresPathParams,
+        path_params: GetScoresPathParams,
     ) -> Result<GetScoresResponse, String> {
         let scores = match get_scores_by_game_id(&self.pool, path_params.game_id).await {
             Ok(scores) => scores,
