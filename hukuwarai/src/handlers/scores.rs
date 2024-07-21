@@ -80,8 +80,12 @@ impl Scores for ApiImpl {
         let response = reqwest::Client::new()
             .post(&similarity_api_url)
             .json(&serde_json::json!({
-                "img1": rendered_url,
-                "img2": game.answer_url,
+                "img1": {
+                    "url": rendered_url
+                },
+                "img2": {
+                    "url": game.answer_url
+                },
                 "model_name": "mse"
             }))
             .send()
@@ -91,17 +95,14 @@ impl Scores for ApiImpl {
             return Err(format!("Failed to render: {}", response.status()));
         }
         let response_body: Value = response.json().await.map_err(|err| err.to_string())?;
-        let score_value = response_body["similarity"]
-            .as_str()
-            .ok_or_else(|| {
-                println!(
-                    "response_body does not contain 'image_url': {:?}",
-                    response_body
-                );
-                "Missing image_url in response".to_string()
-            })?
-            .to_string();
-        let score_value = score_value.parse::<f64>().map_err(|err| err.to_string())?;
+        println!("response_body: {:?}", response_body);
+        let score_value = response_body["similarity"].as_f64().ok_or_else(|| {
+            println!(
+                "response_body does not contain 'similarity': {:?}",
+                response_body
+            );
+            "Missing similarity in response".to_string()
+        })?;
         let score = match add_score(
             &self.pool,
             body.player_id,
