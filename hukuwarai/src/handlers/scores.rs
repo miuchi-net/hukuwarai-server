@@ -12,9 +12,11 @@ use openapi::{
         GetScoresResultPathParams, PostScoresPathParams, PostScoresRequest,
     },
 };
+use serde_json::Value;
 
-use crate::model::score::{
-    add_score, get_final_scores_by_game_id, get_pre_scores, get_scores_by_game_id,
+use crate::model::{
+    game::get_game_by_id,
+    score::{add_score, get_final_scores_by_game_id, get_pre_scores, get_scores_by_game_id},
 };
 
 use super::api_impl::ApiImpl;
@@ -60,10 +62,46 @@ impl Scores for ApiImpl {
                 "Missing image_url in response".to_string()
             })?
             .to_string();
-
-        println!("after-rendered_url");
-        let rendered_url = "dummy_url";
-        let score_value = 0.0;
+        let game = get_game_by_id(&self.pool, path_params.game_id).await;
+        let game = match game {
+            Ok(game) => match game {
+                Some(game) => game,
+                None => {
+                    tracing::error!("Game not found");
+                    return Err("Game not found".to_string());
+                }
+            },
+            Err(err) => {
+                tracing::error!("Failed to get game by id: {err}");
+                return Err(err.to_string());
+            }
+        };
+        let similarity_api_url = format!("{}/similarity", inference_api_endpoint);
+        let response = reqwest::Client::new()
+            .post(&similarity_api_url)
+            .json(&serde_json::json!({
+                "img1": rendered_url,
+                "img2": game.answer_url,
+                "model_name": "mse"
+            }))
+            .send()
+            .await
+            .map_err(|err| err.to_string())?;
+        if !response.status().is_success() {
+            return Err(format!("Failed to render: {}", response.status()));
+        }
+        let response_body: Value = response.json().await.map_err(|err| err.to_string())?;
+        let score_value = response_body["similarity"]
+            .as_str()
+            .ok_or_else(|| {
+                println!(
+                    "response_body does not contain 'image_url': {:?}",
+                    response_body
+                );
+                "Missing image_url in response".to_string()
+            })?
+            .to_string();
+        let score_value = score_value.parse::<f64>().map_err(|err| err.to_string())?;
         let score = match add_score(
             &self.pool,
             body.player_id,
